@@ -66,7 +66,7 @@ int huge HighLevelXGA(void)
 void InitGraph(void)
 {
     Graph driver=DETECT, mode=0, error=0;
-    /*detectgraph(&driver, &mode);*/
+    /* detectgraph(&driver, &mode); Alternative Mode */
 
     /* Instalar Driver Para el Modo Grafico de Alto Nivel */
     installuserdriver("SVGA256", HighLevelXGA);
@@ -82,49 +82,8 @@ void InitGraph(void)
         graphdefaults();
         setviewport(0, 0, getmaxx() + 1, getmaxy() + 1, 1);
         
+        /* Reescribimos el Limite de Movimiento del Mouse */
         mver();
         mlimit(1, 0, 0, getmaxx(), getmaxy());
     }
-}
-
-/* Verifica si Esta Fuera del Marco de Trabajo */
-Boolean IsOutsideWorkArea(ControlEje x, ControlEje y)
-{
-    if (x > 55 && x < 895 && y > 41 && y < 707)
-        return False;
-    else
-        return True;
-}
-
-/* Verifica si Puede Moverse a los extremos del Area de Trabajo */
-Boolean CanMoveLeft(ControlEje x)
-{
-    if (x > Limit[_activeLimit].x1)
-        return True;
-    else
-        return False;
-}
-
-Boolean CanMoveRight(ControlEje x)
-{
-    if (x < Limit[_activeLimit].x2)
-        return True;
-    else
-        return False;
-}
-
-Boolean CanMoveUp(ControlEje y)
-{
-    if (y > Limit[_activeLimit].y1)
-        return True;
-    else
-        return False;
-}
-
-Boolean CanMoveDown(ControlEje y)
-{
-    if (y < Limit[_activeLimit].y2)
-        return True;
-    else
-        return False;
 }

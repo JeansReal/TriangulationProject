@@ -12,28 +12,24 @@
 #include <StdIo.h>      /* Funciones para salida de datos>> printf() */
 #include <Conio.h>      /* Validacion de Control de Teclas>> kbhit() */
 #include <Graphics.h>   /* Para Usar El Entorno Grafico de Borland */ 
-#include <Dos.h>        /* Animaciones>> delay() , sleep() , sound() , nosound() */
-/*#include <Alloc.h>      /* Asignacion de Memoria Dinamica>> malloc() , free() */
+/*#include <Dos.h>*/    /* Animaciones>> delay() , sleep() , sound() , nosound() */
 #include <StdLib.h>     /* Comandos del sistema>> system() , abort() , exit() */
-#include <Math.h>       /* Funciones para Calculos de Figuras Geometricas>> DrawEllipse() */
-#include <String.h>     /* Funcion Para Llenar Bloque de Memoria>> memset() */
-#include <mouse.h>      /* Funcion para Mostrar Mouse y sus Eventos */
+#include <Mouse.h>      /* Funcion para Mostrar Mouse y sus Eventos */
 
 /* Libreria Personalizada */
 #include "Apple/Macro.h"      /* Macros */
 #include "Apple/Modo.h"       /* Modo Grafico */
-#include "Apple/UserMov.h"     /* Funciones Movimiento */
-#include "Apple/Screens.h"
+#include "Apple/UserMov.h"    /* Funciones Movimiento */
+#include "Apple/Screens.h"    /* Funciones de User Interface(UI) */
 
 /* Funciones Prototipo */
 
 /* Funciones Para El Modo Grafico */
 void InitGraph(void);
 int huge HighLevelXGA(void);
-/* Funciones de la Interfaz Grafica */
-
+/* Funciones Para El Movimiento del Usuario (Mouse, Cursor) */
 enum UserMovementControl UserControl(void);
-
+void DrawCursor(ControlEje x, ControlEje y);
 /* Funcion para Hablitar el Movimiento del Cursor */
 Boolean IsOutsideWorkArea(ControlEje x, ControlEje y);
 Boolean CanMoveLeft(ControlEje x);
@@ -44,15 +40,8 @@ Boolean CanMoveDown(ControlEje y);
 enum Button DrawButton(ControlEje x, ControlEje y, Boolean Status, enum Button btnId);
 enum Button ButtonEvents(Boolean Active, enum Button btnId);
 enum Button HoverButton(ControlEje x, ControlEje y);
-
 /* Funcion Que Contiene el Marco de Trabajo */
 void WorkSpace(void);
-
-/* Funciones Para Figuras en Modo XOR */
-void DrawCursor(ControlEje x, ControlEje y);
-
-
-
 
 /** Cuerpo Principal **/
 void main(void)
@@ -63,21 +52,20 @@ void main(void)
     InitGraph();
 
     _activeMovementControl = UserControl();
-
+    
     WorkSpace();
 
-
-    
-
-    
-
-
-
 	do {
-        DrawCursor(x, y);
+        x = mxpos(1);
+        y = mypos(1);
+
+            DrawCursor(x, y);
+
+        if (_activeMovementControl == Mouse)
+            continue;
 
         /* Movimiento de Los Ejes, Manejador de Eventos */
-        Tecla = getch();
+        /*Tecla = getch();*/
         switch (Tecla)
         {
             case ARRIBA:    y   -= (CanMoveUp(y))    ? 5 : False ;                break;
@@ -103,9 +91,9 @@ void main(void)
 
 					x = 475 , y = 373 ;
 
-                    /* Desactiva el Boton y Activa La Figura si alguna fue Seleccionada */
-                    /*if (_hoverButton >= btnLine && _hoverButton <= btnPolygon)*/
-                        /*_activeShape = ButtonEvents(False, _hoverButton);*/
+                    /* Desactiva el Boton */
+                    if (_hoverButton >= btnInputVector && _hoverButton <= btnTrapezoidal)
+                        ButtonEvents(False, _hoverButton);
 
                     _hoverButton = NONE;
                 }
@@ -119,5 +107,5 @@ void main(void)
         if (IsOutsideWorkArea(x, y))
 		   _hoverButton = HoverButton(x, y);
 
-    } while (True);
+    } while (!kbhit());
 }
