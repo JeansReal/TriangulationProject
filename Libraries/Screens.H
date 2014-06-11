@@ -115,7 +115,7 @@ enum Button HoverButton(ControlEje x, ControlEje y)
 void WorkSpace(void)
 {
     /* Fondo */
-    Relleno(Solido, 103);
+    Relleno(Solido, 151);
     bar(0, 0, getmaxx() + 1, (getmaxy() + 1) - 100);
 
     /* WorkSpace */
@@ -123,10 +123,10 @@ void WorkSpace(void)
     bar(100, 50, 925, 707) , rectangle(100, 50, 925, 707) ;
 
 	/* Botones de Comandos de Triangulacion */
-    DrawButton(130, 21, False, btnInputVector);
-    DrawButton(380, 21, False, btnCloseVector);
-    DrawButton(630, 21, False, btnMonotone);
-    DrawButton(880, 21, False, btnTrapezoidal);
+    DrawButton(130, 22, False, btnInputVector);
+    DrawButton(380, 22, False, btnCloseVector);
+    DrawButton(630, 22, False, btnMonotone);
+    DrawButton(880, 22, False, btnTrapezoidal);
 
     /* Boton Restaurar */
     DrawButton(0, 325, False, btnRestore);
