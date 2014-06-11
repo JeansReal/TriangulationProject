@@ -18,6 +18,10 @@ enum Button {
     btnRestore, btnExit /* Botones Laterales */
 } _hoverButton = NONE;
 
+enum UserMovementControl {
+    Keyboard, Mouse
+} _activeMovementControl = NONE;
+
 /* Enumeracion Para el Macro Linea>> Que Representa Funcion setlinestyle(Estilo,Trama,Grosor) */
 enum Estilos_De_Linea { Continua, Punteada, Centrada, Guiones };
 enum Grosor_De_Linea { Fina, Gruesa = 3 };
@@ -77,6 +81,8 @@ void InitGraph(void)
         cleardevice();
         graphdefaults();
         setviewport(0, 0, getmaxx() + 1, getmaxy() + 1, 1);
+        
+        mver();
         mlimit(1, 0, 0, getmaxx(), getmaxy());
     }
 }
