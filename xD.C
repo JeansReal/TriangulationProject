@@ -22,7 +22,7 @@
 /* Libreria Personalizada */
 #include "Apple/Macro.h"      /* Macros */
 #include "Apple/Modo.h"       /* Modo Grafico */
-#include "Apple/XorFunc.h"    /* Funciones XOR */
+#include "Apple/UserMov.h"     /* Funciones Movimiento */
 #include "Apple/Screens.h"
 
 /* Funciones Prototipo */
@@ -31,6 +31,8 @@
 void InitGraph(void);
 int huge HighLevelXGA(void);
 /* Funciones de la Interfaz Grafica */
+
+enum UserMovementControl UserControl(void);
 
 /* Funcion para Hablitar el Movimiento del Cursor */
 Boolean IsOutsideWorkArea(ControlEje x, ControlEje y);
@@ -49,6 +51,9 @@ void WorkSpace(void);
 /* Funciones Para Figuras en Modo XOR */
 void DrawCursor(ControlEje x, ControlEje y);
 
+
+
+
 /** Cuerpo Principal **/
 void main(void)
 {
@@ -57,7 +62,16 @@ void main(void)
 
     InitGraph();
 
-    WorkSpace();    
+    _activeMovementControl = UserControl();
+
+    WorkSpace();
+
+
+    
+
+    
+
+
 
 	do {
         DrawCursor(x, y);
