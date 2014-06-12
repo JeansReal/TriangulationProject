@@ -26,52 +26,43 @@
 
 /* Funciones Para El Modo Grafico */
 void InitGraph(void);
-int huge HighLevelXGA(void);
 /* Funciones Para El Movimiento del Usuario (Mouse, Cursor) */
 enum UserMovementControl UserControl(void);
-void DrawCursor(ControlEje x, ControlEje y);
-/* Funcion para Hablitar el Movimiento del Cursor */
-Boolean IsOutsideWorkArea(ControlEje x, ControlEje y);
-Boolean CanMoveLeft(ControlEje x);
-Boolean CanMoveRight(ControlEje x);
-Boolean CanMoveUp(ControlEje y);
-Boolean CanMoveDown(ControlEje y);
+void DrawCursor(Axis x, Axis y);
 /* Funcion Para Animar Controles(Botones) */
-enum Button DrawButton(ControlEje x, ControlEje y, Boolean Status, enum Button btnId);
+enum Button DrawButton(Axis x, Axis y, Boolean Status, enum Button btnId);
 enum Button ButtonEvents(Boolean Active, enum Button btnId);
-enum Button HoverButton(ControlEje x, ControlEje y);
+enum Button HoverButton(Axis x, Axis y);
 /* Funcion Que Contiene el Marco de Trabajo */
 void WorkSpace(void);
+void UserInterface(void);
 
 /** Cuerpo Principal **/
 void main(void)
 {
-    Direccional Tecla = 0;
-    ControlEje x = 140, y = 540;
+    EventHandler Evento = 0;
+    Axis x = 140, y = 540;
 
     InitGraph();
 
-    _activeMovementControl = UserControl();
+    _activeMovementControl = Keyboard;  /* UserControl(); */
     
-    WorkSpace();
+    UserInterface();
 
-	do {
-        x = mxpos(1);
-        y = mypos(1);
+    (_activeMovementControl == Mouse) ? mver() : False ;
 
+    do {
+        if (_activeMovementControl == Keyboard)
             DrawCursor(x, y);
 
-        if (_activeMovementControl == Mouse)
-            continue;
-
         /* Movimiento de Los Ejes, Manejador de Eventos */
-        /*Tecla = getch();*/
-        switch (Tecla)
+        Evento = getch();
+        switch (Evento)
         {
-            case ARRIBA:    y   -= (CanMoveUp(y))    ? 5 : False ;                break;
-            case ABAJO:     y   += (CanMoveDown(y))  ? 5 : False ;                break;
-            case DERECHA:   x   += (CanMoveRight(x)) ? 5 : False ;                break;
-            case IZQUIERDA: x   -= (CanMoveLeft(x))  ? 5 : False ;                break;
+            case UP:    y -= CanMoveUp(y)    break;
+            case DOWN:  y += CanMoveDown(y)  break;
+            case RIGHT: x += CanMoveRight(x) break;
+            case LEFT:  x -= CanMoveLeft(x)  break;
 
             case ENTER:
                 DrawCursor(x, y);                   /* Borra el Cursor */
@@ -98,14 +89,12 @@ void main(void)
                     _hoverButton = NONE;
                 }
             break;
-
-            case ESC:   exit(0);
         }
 
 
-        /* Si el Cursor esta Fuera del Area de Trabajo o El Cursor esta en un SubMenu */
+        /* Si el Cursor esta Fuera del Area de Trabajo */
         if (IsOutsideWorkArea(x, y))
 		   _hoverButton = HoverButton(x, y);
 
-    } while (!kbhit());
+    } while (mclick() != 1);
 }
