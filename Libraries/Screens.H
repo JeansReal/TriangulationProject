@@ -1,8 +1,7 @@
 /* Libreria que Contiene Esqueletos de Pantallas y Funciones de Animacion */
 
-
 /* Funcion de Reforzamiento para el Marco, lo Divide por Partes para poder animarlo! */
-enum Button DrawButton(ControlEje x, ControlEje y, Boolean Status, enum Button btnId)
+enum Button DrawButton(Axis x, Axis y, Boolean Status, enum Button btnId)
 {
     struct ButtonsStyle *btnStyle = NULL;
     Graph btnLineWidth = 0, btnLineStyle = 0;
@@ -28,31 +27,29 @@ enum Button DrawButton(ControlEje x, ControlEje y, Boolean Status, enum Button b
     (!Status) ? btnLineWidth = Gruesa , btnLineStyle = Continua : False ;
 
     /* Definiendo Estilo para Marco de Boton */
-    Relleno(Solido, btnStyle[Status].bkColor);
-    Linea(btnLineStyle, btnLineWidth, btnStyle[Status].lineColor);
+    FillStyle(Solido, btnStyle[Status].bkColor);
+    LineStyle(btnLineStyle, btnLineWidth, btnStyle[Status].lineColor);
 
-    (btnId >= btnInputVector && btnId <= btnTrapezoidal) ? fillellipse(x, y, 120, 19) :
-    (btnId == btnRestore) ? fillellipse(x, y, 50, 190) :
-    (btnId == btnExit)    ? settextstyle(1, 0, 8) : NONE ;
+    (btnId >= btnInputVector && btnId <= btnTrapezoidal) ? fillellipse(x, y, 75, 19) :
+    (btnId == btnRestore) ? fillellipse(x, y, 32, 120) :
+    (btnId == btnExit)    ? sector(x + 25, y + 40, 0, 180, 95, 70) : NONE ;
     
-
     /* Define Color de la Etiqueta del Boton */
     setcolor(btnStyle[Status].lblColor);
 
     /* Calcular Posicion de Etiqueta Segun Tipo de Boton */
-    (btnId >= btnInputVector && btnId <= btnTrapezoidal) ? settextstyle(2, 0, 7) , y -= 11 , x -= 83 :
-    (btnId == btnRestore) ? settextstyle(1, 1, 7) :
-    (btnId == btnExit)    ? settextstyle(1, 0, 8) : NONE ;
+    (btnId >= btnInputVector && btnId <= btnTrapezoidal) ? settextstyle(2, 0, 5) , y -= 8 , x -= 56 :
+    (btnId == btnRestore) ? settextstyle(1, 1, 3) , y -= 33 :
+    (btnId == btnExit)    ? settextstyle(1, 0, 8) , x -= 18 , y -= 44 : NONE ;
 
     switch (btnId)
     {
         case btnInputVector:    outtextxy(x, y, "Ingresar Puntos");    break;
         case btnCloseVector:    outtextxy(x, y, "Cerrar Poligono");    break;
         case btnMonotone:       outtextxy(x, y, "Trian. Monotoma");    break;
-        case btnTrapezoidal:    outtextxy(x, y, "Tri. Trapezoidal");     break;
-
-        case btnRestore:        outtextxy(0,   y, "ESC");              break;
-        case btnExit:           outtextxy(6,   y, "S");                break;
+        case btnTrapezoidal:    outtextxy(x, y, "Tri. Trapezoidal");   break;
+        case btnRestore:        outtextxy(x, y, "E S C");              break;
+        case btnExit:           outtextxy(x, y, "S");                  break;
     }
 
     return btnId;
@@ -76,7 +73,7 @@ enum Button ButtonEvents(Boolean Status, enum Button btnId)
 }
 
 /* Funcion que Realiza Animaciones de Botones */
-enum Button HoverButton(ControlEje x, ControlEje y)
+enum Button HoverButton(Axis x, Axis y)
 {
     enum Button static onHover = NONE, onChange = NONE;
 
@@ -111,26 +108,39 @@ enum Button HoverButton(ControlEje x, ControlEje y)
     return onHover;
 }
 
-/* Funcion que Contiene el Marco Principal */
 void WorkSpace(void)
 {
-    /* Fondo */
-    Relleno(Solido, 151);
-    bar(0, 0, getmaxx() + 1, (getmaxy() + 1) - 100);
+    FillStyle(Solido, 15) , LineStyle(Continua, Gruesa, 0) ;
 
-    /* WorkSpace */
-    Relleno(Solido, 15) , Linea(Continua, Gruesa, 0) ;
-    bar(100, 50, 925, 707) , rectangle(100, 50, 925, 707) ;
+    moveto(520, 430) , lineto( 50, 430) ;
+    lineto( 50,  50) , lineto(590,  50) ;
+    lineto(590, 360) ;
+
+    arc(590, 430, 90, 180, 70);
+
+    floodfill(320, 240, 0);
+}
+
+/* Funcion que Contiene el Marco Principal */
+void UserInterface(void)
+{
+    /* Fondo */
+    FillStyle(Solido, 7) , bar(0, 0, 640, 440) ;
+
+    WorkSpace();
+
+    /* Status Bar */
+    FillStyle(Solido, 8) , bar(0, 440, 640, 480) ;
 
 	/* Botones de Comandos de Triangulacion */
-    DrawButton(130, 22, False, btnInputVector);
-    DrawButton(380, 22, False, btnCloseVector);
-    DrawButton(630, 22, False, btnMonotone);
-    DrawButton(880, 22, False, btnTrapezoidal);
+    DrawButton( 83, 22, False, btnInputVector);
+    DrawButton(240, 22, False, btnCloseVector);
+    DrawButton(400, 22, False, btnMonotone);
+    DrawButton(560, 22, False, btnTrapezoidal);
 
     /* Boton Restaurar */
-    DrawButton(0, 325, False, btnRestore);
+    DrawButton(  0, 230, False, btnRestore);
 
     /* Exit */
-    DrawButton(   1, 1, False, btnExit);
+    DrawButton(600, 398, False, btnExit);
 }

@@ -1,26 +1,32 @@
 /* Libreria que Contiene Macros para el Modo Grafico */
 
 /* Definicion de Constantes y Macros */
-#define NONE		-1
+#define NONE	-1
 /* Dirrecionales */
-#define ARRIBA      72
-#define ABAJO       80
-#define DERECHA     77
-#define IZQUIERDA   75
+#define UP      72
+#define DOWN    80
+#define RIGHT   77
+#define LEFT	75
 /* Teclas De Control */
-#define ENTER   	13
-#define ESC     	27
-/* Color XOR Default */
-#define Color   	40  /* Rojo en XGA */
+#define ENTER   13
 
-/* Macros Para Funcion XOR */
+#define CURSORMOTION 5
 
-/* Macro Para Pintar Pixel en XOR */            /* Refactorizando Para Obtener Mas Velocidad */
-#define PixelXor(x, y)	putpixel(x, y, Color ^ getpixel(x, y))
+/* Macro Para Pintar Pixel en XOR */
+#define PixelXor(x, y)	putpixel(x, y, 40 ^ getpixel(x, y))
 
 /* Macro Para Determinar Columnas de Arreglos Unidimensionales Dinamicos */
-#define TamArray(Array) (sizeof(Array) / sizeof(Array[0]))
+#define ArraySize(Array) (sizeof(Array) / sizeof(Array[0]))
 
 /* Macros Para Funciones De Estilo */
-#define Relleno(Trama, Color)           setfillstyle(Trama, Color)
-#define Linea(Estilo, Grosor, Color)    setcolor(Color), setlinestyle(Estilo, 0, Grosor)
+#define FillStyle(Trama, Color)            setfillstyle(Trama, Color)
+#define LineStyle(Style, Thickness, Color)    setcolor(Color), setlinestyle(Style, 0, Thickness)
+
+/* Verifica si Puede Moverse a los extremos del Area de Trabajo */
+#define CanMoveLeft(x)  (x >   0) ? CURSORMOTION : False ;
+#define CanMoveRight(x) (x < 640) ? CURSORMOTION : False ;
+#define CanMoveUp(y)    (y >   0) ? CURSORMOTION : False ;
+#define CanMoveDown(y)  (y < 480) ? CURSORMOTION : False ;
+
+/* Verifica si Esta Fuera del Marco de Trabajo */
+#define IsOutsideWorkArea(x, y) (((x > 55) && (x < 895) && (y > 41) && (y < 707)) ? False : True)
