@@ -5,16 +5,18 @@ enum UserMovementControl UserControl(void)
     ControlEje x = mxpos(1), y = mypos(1);
     enum UserMovementControl SelectedControl = NONE;
     
-    Relleno(Solido, 53) , setcolor(18) ;
-    bar(350, 250, 725, 350) , rectangle(350, 250, 725, 350);
+    Relleno(Solido, 2) , setcolor(6) ;
+    bar(150, 200, 525, 300) , rectangle(150, 200, 525, 300);
 
-    setcolor(40) , settextstyle(2, 0, 5) ;
-    outtextxy(365, 275, "Presione Cualquier Tecla Para Usar el Teclado");
-    outtextxy(360, 305, "Realize Cualquier Movimiento Para Usar el Mouse");
+    setcolor(4) , settextstyle(2, 0, 5) ;
+    outtextxy(165, 225, "Presione Cualquier Tecla Para Usar el Teclado");
+    outtextxy(160, 255, "Realize Cualquier Movimiento Para Usar el Mouse");
 
     do {
         SelectedControl = ((x != mxpos(1)) || (y!= mypos(1)) || (mclick() == 1) || (mclick() == 2)) ? Mouse : (kbhit()) ? Keyboard : NONE ;
     } while (SelectedControl == NONE);
+
+    exit(1);
 
     return SelectedControl;
 }
@@ -24,37 +26,16 @@ void DrawCursor(ControlEje x, ControlEje y)
 {
     Iteracion i = 0;
     
-    static short x1, y1;
-    Boolean static hacer = NONE;
+    PixelXor(x, y);      /* Centro */
 
-    if (x1 != x)
+    for (i = 1; i <= 10; ++i)
     {
-        x1 = x;
-        hacer = True;
-        setcolor(random(17));
-        line (x, 10, y, 10);
-    }
-    if (y1 != y)
-    {
-        y1 = y;
-        hacer = True;
-        setcolor(random(17));
-        line (x, 50, y, 50);
+        PixelXor(x, y - i); /* Arriba */
+        PixelXor(x + i, y); /* Derecha */
+        PixelXor(x, y + i); /* Abajo */
+        PixelXor(x - i, y); /* Izquierda */
     }
 
-
-    if (hacer)
-    {   
-        PixelXor(x, y);      /* Centro */
-        for (i = 1; i <= 10; ++i)
-        {
-            PixelXor(x, y - i); /* Arriba */
-            PixelXor(x + i, y); /* Derecha */
-            PixelXor(x, y + i); /* Abajo */
-            PixelXor(x - i, y); /* Izquierda */
-        }
-        hacer = False;
-    }
 }
 
 /* Verifica si Esta Fuera del Marco de Trabajo */
