@@ -52,24 +52,15 @@ struct ButtonsStyle {
 struct CursorLimitMovement {
     ControlEje x1, y1, x2, y2;
 } Limit[4] = {
-    {   0,   0, 1024, 768 } , {  55,  43, 895, 703 }
+    {   0,   0, 640, 480 } , {  55,  43, 895, 703 }
 };
 
 /* Variables Globales */
 
-/*Iniciando Modo Grafico 1024*768 A>> 256 Colores*/
-int huge HighLevelXGA(void)
-{
-    return 4;
-}
-
 void InitGraph(void)
 {
-    Graph driver=DETECT, mode=0, error=0;
-    /* detectgraph(&driver, &mode); Alternative Mode */
+    Graph driver = VGA, mode = VGAHI, error = 0;
 
-    /* Instalar Driver Para el Modo Grafico de Alto Nivel */
-    installuserdriver("SVGA256", HighLevelXGA);
     initgraph(&driver, &mode, "");
 
     /* Validamos Si el Modo Grafico Inicio Sin Problemas */
@@ -77,13 +68,6 @@ void InitGraph(void)
     {
         printf("Error Al Iniciar El Modo Grafico\nError #%d >> %s\n\n", error, grapherrormsg(error));
         system("Pause") , abort() ;
-    } else {
-        cleardevice();
-        graphdefaults();
-        setviewport(0, 0, getmaxx() + 1, getmaxy() + 1, 1);
-        
-        /* Reescribimos el Limite de Movimiento del Mouse */
-        mver();
-        mlimit(1, 0, 0, getmaxx(), getmaxy());
     }
+    
 }
