@@ -6,7 +6,7 @@ typedef unsigned short Iteration, Axis, Boolean, Quantity, EventHandler;
 typedef char* String;
 
 /* Enumeraciones Para Control de Funciones y Validaciones */
-enum Boolean { False, True };
+enum Boolean { false, true };
 
 enum Limits { Default, WorkArea } _activeLimit = Default ;
 enum Button {
@@ -41,9 +41,9 @@ enum Fill_Styles {
 struct ButtonsStyle {
     Graph bkColor, lineColor, lblColor;
 } btnCommandsStyle[2] = {
-    { 11, 0, 0 } , { 127, 42, 93 }
+    { 11, 0, 0 } , { 15, 10, 13 }
 }, btnRestoreStyle[2] = {
-    { 10, 6, 0 } , { 15, 40, 47 }
+    { 10, 6, 0 } , { 12, 40, 47 }
 }, btnExitStyle[2] = {
     { 4, 0, 15 } , { 41, 15, 47 }
 };

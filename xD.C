@@ -37,64 +37,75 @@ enum Button HoverButton(Axis x, Axis y);
 void WorkSpace(void);
 void UserInterface(void);
 
+enum Boolean test(int x, int y, struct ButtonsStyle *btnStyle);
+
 /** Cuerpo Principal **/
 void main(void)
 {
-    EventHandler Evento = 0;
-    Axis x = 140, y = 540;
+    EventHandler Event = NONE;
+    Axis x = 320, y = 240;
 
     InitGraph();
 
-    _activeMovementControl = Keyboard;  /* UserControl(); */
+    _activeMovementControl = Mouse;  /* UserControl(); */
     
     UserInterface();
-
-    (_activeMovementControl == Mouse) ? mver() : False ;
+    
+    (_activeMovementControl == Mouse) ? mver() : false ;
 
     do {
-        if (_activeMovementControl == Keyboard)
-            DrawCursor(x, y);
 
-        /* Movimiento de Los Ejes, Manejador de Eventos */
-        Evento = getch();
-        switch (Evento)
+        /* Axis Movement, Event Handlers */
+        if (_activeMovementControl == Keyboard)
+        {
+            DrawCursor(x, y);
+            Event = getch();
+        } else {                          /* Mouse is Active */
+            if (mclick() == CLICK)
+                Event = CLICK;
+
+            x = mxpos(1);
+            y = mypos(1);
+        }
+
+        /* Si el Cursor esta Fuera del Area de Trabajo */
+        if (IsOutsideWorkArea(x, y))
+		   _hoverButton = HoverButton(x, y);
+
+        switch (Event)
         {
             case UP:    y -= CanMoveUp(y)    break;
             case DOWN:  y += CanMoveDown(y)  break;
             case RIGHT: x += CanMoveRight(x) break;
             case LEFT:  x -= CanMoveLeft(x)  break;
 
-            case ENTER:
-                DrawCursor(x, y);                   /* Borra el Cursor */
+            case ENTER: case CLICK:
+                if (_hoverButton == NONE)       /* If No Button Is Selected */
+                    break;
+
+                if (_activeMovementControl == Keyboard)
+                    DrawCursor(x, y);           /* Borra el Cursor  */
                 
-                if (_hoverButton != NONE)      		/* Si selecciona un boton */
+                switch (_hoverButton)
                 {
-                    switch (_hoverButton)           /* Si Esta Seleccionando Algun Boton */
-                    {
-                        case btnInputVector: 	ButtonEvents(False, btnInputVector);      break;
-                        case btnCloseVector:    ButtonEvents(False, btnCloseVector);      break;
-                        case btnMonotone:       ButtonEvents(False, btnMonotone);         break;
-                        case btnTrapezoidal:    ButtonEvents(False, btnTrapezoidal);      break;
-                        case btnRestore:        ButtonEvents(False, btnRestore);          break;
-                        case btnExit:           closegraph();       exit(0);
-                    }
-
-
-					x = 475 , y = 373 ;
-
-                    /* Desactiva el Boton */
-                    if (_hoverButton >= btnInputVector && _hoverButton <= btnTrapezoidal)
-                        ButtonEvents(False, _hoverButton);
-
-                    _hoverButton = NONE;
+                    case btnInputVector:    ButtonEvents(false, btnInputVector);      break;
+                    case btnCloseVector:    ButtonEvents(false, btnCloseVector);      break;
+                    case btnMonotone:       ButtonEvents(false, btnMonotone);         break;
+                    case btnTrapezoidal:    ButtonEvents(false, btnTrapezoidal);      break;
+                    case btnRestore:        ButtonEvents(false, btnRestore);          break;
+                    case btnExit:           closegraph();       exit(0);
                 }
+
+                /* Realocating Cursor */
+                if (_activeMovementControl == Keyboard)
+                    x = 320 , y = 240 ;
+                else
+                    msituar(1, 320, 240);
+
+                _hoverButton = Event =  NONE;
+                
             break;
         }
 
-
-        /* Si el Cursor esta Fuera del Area de Trabajo */
-        if (IsOutsideWorkArea(x, y))
-		   _hoverButton = HoverButton(x, y);
-
-    } while (mclick() != 1);
+    } while (mclick() != 2);
 }
