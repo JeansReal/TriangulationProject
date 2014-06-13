@@ -43,7 +43,7 @@ struct ButtonsStyle {
 } btnCommandsStyle[2] = {
     { 11, 0, 0 } , { 15, 10, 13 }
 }, btnRestoreStyle[2] = {
-    { 10, 6, 0 } , { 12, 40, 47 }
+    { 12, 5, 15 } , { 10, 6, 0 }
 }, btnExitStyle[2] = {
     { 4, 0, 15 } , { 41, 15, 47 }
 };
