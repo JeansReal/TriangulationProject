@@ -70,43 +70,32 @@ enum Button ButtonEvents(Boolean Status, enum Button btnId)
     }
 }
 
-enum Boolean test(int x, int y, struct ButtonsStyle *btnStyle)
-{
-    int bkPixel = getpixel(x - 1, y);
-
-    if (bkPixel == btnStyle[0].bkColor || bkPixel == btnStyle[0].lineColor || bkPixel == btnStyle[0].lblColor)
-    {
-        gotoxy(1,1);
-        printf("%d %d ", bkPixel, btnStyle[0].bkColor);
-        return true;
-    }
-
-    return false;
-}
-
 /* Funcion que Realiza Animaciones de Botones */
 enum Button HoverButton(Axis x, Axis y)
 {
     enum Button static onHover = NONE, onChange = NONE;
 
-    /* Si el Cursor esta sobre uno de los botones Superiores y el boton esta desactivado
-       Revalidation on the same onHover Button avoids redraw on this and it's a optimized method */
-    if ((x >= 8) && (x <= 635) && (y >= 3) && (y <= 41))    /* Botones Superiores */
-        (x >=   8 && x <= 159 && onHover != btnInputVector && test(x,y,btnCommandsStyle)) ? onHover = ButtonEvents(true, btnInputVector) :
-        (x >= 166 && x <= 317 && onHover != btnCloseVector && test(x,y,btnCommandsStyle)) ? onHover = ButtonEvents(true, btnCloseVector) :
-        (x >= 324 && x <= 475 && onHover != btnMonotone)   && test(x,y,btnCommandsStyle)  ? onHover = ButtonEvents(true, btnMonotone)    :
-        (x >= 482 && x <= 633 && onHover != btnTrapezoidal && test(x,y,btnCommandsStyle)) ? onHover = ButtonEvents(true, btnTrapezoidal) :
-        (getpixel(x - 1, y) == 7) ? onHover = NONE : NONE ;
-    else if (x >= 3 && x <= 50 && y >= 50 && y <= 300)  /* Boton Lateral Izquierdo */
-        (onHover != btnRestore)                   ? onHover = ButtonEvents(true, btnRestore)     : NONE ;
-    else if (x >= 592 && y >= 403 && y <= 440)          /* Boton Lateral Derecho */
-        (onHover != btnExit)                      ? onHover = ButtonEvents(true, btnExit)        : NONE ;
-    else
+    /* Si el Cursor esta sobre uno de los botones y el boton esta desactivado
+       Revalidation on the same onHover, avoids redraw */
+
+    if (IsInsideButton(x, y))
+    {
+        if ((x >= 8) && (x <= 635) && (y >= 3) && (y <= 41))                                    /* Command Buttons */   
+            (x >=   8 && x <= 159 && onHover != btnInputVector) ? onHover = ButtonEvents(true, btnInputVector) :
+            (x >= 166 && x <= 317 && onHover != btnCloseVector) ? onHover = ButtonEvents(true, btnCloseVector) :
+            (x >= 324 && x <= 475 && onHover != btnMonotone)    ? onHover = ButtonEvents(true, btnMonotone)    :
+            (x >= 482 && x <= 633 && onHover != btnTrapezoidal) ? onHover = ButtonEvents(true, btnTrapezoidal) : NONE ;
+        else if ((x <= 32) && (y >= 111) && (y <= 350))                                         /* Left Button */
+            (onHover != btnRestore)                             ? onHover = ButtonEvents(true, btnRestore)     : NONE ;
+        else if ((x >= 530) && (y >= 367) && (y <= 440))                                        /* Right Button */
+            if ((getpixel(x - 1, y) != 6) && (getpixel(x - 1, y) != 15))                        /* Is Outside WorkArea */
+                (onHover != btnExit)                            ? onHover = ButtonEvents(true, btnExit)        : NONE ;
+    } else
         onHover = NONE;
 
     /* Si se Selecciona otro Boton */
-    if (_hoverButton == NONE)
-        onChange = NONE;
+    /*if (_hoverButton == NONE)
+        onChange = NONE;*/
 
     if (onHover != onChange)
     {
@@ -122,7 +111,7 @@ enum Button HoverButton(Axis x, Axis y)
 
 void WorkSpace(void)
 {
-    FillStyle(Solido, 15) , LineStyle(Continua, Gruesa, 0) ;
+    FillStyle(Solido, 15) , LineStyle(Continua, Gruesa, 6) ;
 
     moveto(520, 430) , lineto( 50, 430) ;
     lineto( 50,  50) , lineto(590,  50) ;
@@ -130,7 +119,7 @@ void WorkSpace(void)
 
     arc(590, 430, 90, 180, 70);
 
-    floodfill(320, 240, 0);
+    floodfill(320, 240, 6);
 }
 
 /* Funcion que Contiene el Marco Principal */
