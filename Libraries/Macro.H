@@ -33,4 +33,4 @@
 #define IsOutsideWorkArea(x, y) (((x < 50) || (x > 590) || (y < 50) || (y > 430)) || ((y > 360) && (x > 520))) ? true : false
 
 /* Validate if the cursor|Mouse is inside a button */
-#define IsInsideButton(x, y)    ((getpixel(x - 1, y) != 7) && (getpixel(x - 1, y) != 8)) ? true : false
+#define IsInsideButton(x, y)    ((getpixel(x - 1, y - 1) != 7) && (getpixel(x - 1, y - 1) != 8)) ? true : false

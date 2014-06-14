@@ -52,28 +52,35 @@ enum Button DrawButton(Axis x, Axis y, Boolean Status, enum Button btnId)
 }
 
 /* Funcion que Retorna el Evento del Boton */
-enum Button ButtonEvents(Boolean Status, enum Button btnId)
+enum Button ButtonEvents(Boolean status, enum Button btnId)
 {
+    if (btnId == NONE) /* Avoid Nesting */
+        return NONE;
+
     if (_activeMovementControl == Mouse)
         mocultar();
 
     switch (btnId)
     {
-        case btnInputVector:    return DrawButton( 83,  22, Status, btnInputVector);
-        case btnCloseVector:    return DrawButton(240,  22, Status, btnCloseVector);
-        case btnMonotone:       return DrawButton(400,  22, Status, btnMonotone);
-        case btnTrapezoidal:    return DrawButton(560,  22, Status, btnTrapezoidal);
-        case btnRestore:        return DrawButton(  0, 230, Status, btnRestore);
-        case btnExit:           return DrawButton(600, 398, Status, btnExit);
-
-        default:                return NONE;
+        case btnInputVector:    DrawButton( 83,  22, status, btnInputVector);   break;
+        case btnCloseVector:    DrawButton(240,  22, status, btnCloseVector);   break;
+        case btnMonotone:       DrawButton(400,  22, status, btnMonotone);      break;
+        case btnTrapezoidal:    DrawButton(560,  22, status, btnTrapezoidal);   break;
+        case btnRestore:        DrawButton(  0, 230, status, btnRestore);       break;
+        case btnExit:           DrawButton(600, 398, status, btnExit);          break;
     }
-}
 
+    if (_activeMovementControl == Mouse)
+        mver();
+
+    return btnId;
+}
+    
 /* Funcion que Realiza Animaciones de Botones */
 enum Button HoverButton(Axis x, Axis y)
 {
     enum Button static onHover = NONE, onChange = NONE;
+    Graph pixelColor = getpixel(x - 1, y - 1);
 
     /* Si el Cursor esta sobre uno de los botones y el boton esta desactivado
        Revalidation on the same onHover, avoids redraw */
@@ -87,31 +94,30 @@ enum Button HoverButton(Axis x, Axis y)
             (x >= 482 && x <= 633 && onHover != btnTrapezoidal) ? onHover = ButtonEvents(true, btnTrapezoidal) : NONE ;
         else if ((x <= 32) && (y >= 111) && (y <= 350))                                         /* Left Button */
             (onHover != btnRestore)                             ? onHover = ButtonEvents(true, btnRestore)     : NONE ;
-        else if ((x >= 530) && (y >= 367) && (y <= 440))                                        /* Right Button */
-            if ((getpixel(x - 1, y) != 6) && (getpixel(x - 1, y) != 15))                        /* Is Outside WorkArea */
+        else if ((x >= 530) && (y >= 368) && (y <= 440))                                        /* Right Button */
+            if ((pixelColor != 15) && (pixelColor != 6) && (pixelColor != 0))        /* Is Outside WorkArea Rectangle */
                 (onHover != btnExit)                            ? onHover = ButtonEvents(true, btnExit)        : NONE ;
     } else
         onHover = NONE;
 
-    /* Si se Selecciona otro Boton */
-    /*if (_hoverButton == NONE)
-        onChange = NONE;*/
-
+    /* If a Button Was Clicked */
     if (onHover != onChange)
     {
-        ButtonEvents(false, onChange);
+        if (_hoverButton == NONE) /* If there is no button selected there is no change */
+            onChange = NONE;
+
+        if (onChange != NONE)   /* if a button was selected redraw in new state */
+            ButtonEvents(false, onChange);
+
         onChange = onHover;
     }
-
-    if (_activeMovementControl == Mouse)
-        mver();
 
     return onHover;
 }
 
 void WorkSpace(void)
 {
-    FillStyle(Solido, 15) , LineStyle(Continua, Gruesa, 6) ;
+    FillStyle(Solido, 15) , LineStyle(Continua, Fina, 6) ;
 
     moveto(520, 430) , lineto( 50, 430) ;
     lineto( 50,  50) , lineto(590,  50) ;
