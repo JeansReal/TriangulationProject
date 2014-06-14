@@ -34,3 +34,14 @@ void DrawCursor(Axis x, Axis y)
         PixelXor(x - i, y); /* Izquierda */
     }
 }
+
+int ReadKey(void)
+{
+    EventHandler Key;
+
+    while((Key = getch()) != 0)
+        if(Key == ENTER)
+            return Key;
+
+    return getch();
+}

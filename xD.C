@@ -12,7 +12,6 @@
 #include <StdIo.h>      /* Funciones para salida de datos>> printf() */
 #include <Conio.h>      /* Validacion de Control de Teclas>> kbhit() */
 #include <Graphics.h>   /* Para Usar El Entorno Grafico de Borland */ 
-/*#include <Dos.h>*/    /* Animaciones>> delay() , sleep() , sound() , nosound() */
 #include <StdLib.h>     /* Comandos del sistema>> system() , abort() , exit() */
 #include <Mouse.h>      /* Funcion para Mostrar Mouse y sus Eventos */
 
@@ -23,21 +22,19 @@
 #include "Apple/Screens.h"    /* Funciones de User Interface(UI) */
 
 /* Funciones Prototipo */
-
 /* Funciones Para El Modo Grafico */
 void InitGraph(void);
 /* Funciones Para El Movimiento del Usuario (Mouse, Cursor) */
 enum UserMovementControl UserControl(void);
 void DrawCursor(Axis x, Axis y);
+int ReadKey(void);
 /* Funcion Para Animar Controles(Botones) */
 enum Button DrawButton(Axis x, Axis y, Boolean Status, enum Button btnId);
-enum Button ButtonEvents(Boolean Active, enum Button btnId);
+enum Button ButtonEvents(Boolean Status, enum Button btnId);
 enum Button HoverButton(Axis x, Axis y);
 /* Funcion Que Contiene el Marco de Trabajo */
 void WorkSpace(void);
 void UserInterface(void);
-
-enum Boolean test(int x, int y, struct ButtonsStyle *btnStyle);
 
 /** Cuerpo Principal **/
 void main(void)
@@ -51,18 +48,16 @@ void main(void)
     
     UserInterface();
     
-    (_activeMovementControl == Mouse) ? mver() : false ;
+    (_activeMovementControl == Mouse) ? mver() : DrawCursor(x, y) ;
 
     do {
-
         /* Axis Movement, Event Handlers */
         if (_activeMovementControl == Keyboard)
         {
+            Event = ReadKey();
             DrawCursor(x, y);
-            Event = getch();
         } else {                          /* Mouse is Active */
-            if (mclick() == CLICK)
-                Event = CLICK;
+            Event = (mclick() == CLICK) ? CLICK : NONE ;
 
             x = mxpos(1);
             y = mypos(1);
@@ -81,31 +76,33 @@ void main(void)
 
             case ENTER: case CLICK:
                 if (_hoverButton == NONE)       /* If No Button Is Selected */
-                    break;
-
-                if (_activeMovementControl == Keyboard)
-                    DrawCursor(x, y);           /* Borra el Cursor  */
-                
-                switch (_hoverButton)
                 {
-                    case btnInputVector:    ButtonEvents(false, btnInputVector);      break;
-                    case btnCloseVector:    ButtonEvents(false, btnCloseVector);      break;
-                    case btnMonotone:       ButtonEvents(false, btnMonotone);         break;
-                    case btnTrapezoidal:    ButtonEvents(false, btnTrapezoidal);      break;
-                    case btnRestore:        ButtonEvents(false, btnRestore);          break;
-                    case btnExit:           closegraph();       exit(0);
+                    /* TODO Save Points */
+                } else {                        /* If a Button Was Selected */
+                    switch (_hoverButton)
+                    {
+                        case btnInputVector:    ButtonEvents(false, btnInputVector);   break;
+                        case btnCloseVector:    ButtonEvents(false, btnCloseVector);   break;
+                        case btnMonotone:       ButtonEvents(false, btnMonotone);      break;
+                        case btnTrapezoidal:    ButtonEvents(false, btnTrapezoidal);   break;
+                        case btnRestore:        ButtonEvents(false, btnRestore);       break;
+                        case btnExit:           closegraph();       exit(0);
+                    }
+
+                    /* Realocating Cursor */
+                    (_activeMovementControl == Keyboard) ? x = 320 , y = 240 : msituar(1, 320, 240) ;
+
+                    _hoverButton = Event = NONE;
                 }
-
-                /* Realocating Cursor */
-                if (_activeMovementControl == Keyboard)
-                    x = 320 , y = 240 ;
-                else
-                    msituar(1, 320, 240);
-
-                _hoverButton = Event =  NONE;
-                
             break;
+
+            default:
+                if (_activeMovementControl == Keyboard) /* Redraws Cursor For more UX! */
+                    DrawCursor(x, y);
+            break;
+            
         }
 
+
     } while (mclick() != 2);
-}
+}

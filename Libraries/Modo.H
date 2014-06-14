@@ -3,7 +3,6 @@
 /* Declaracion de Nuevos Tipos de Datos */
 typedef int Graph;
 typedef unsigned short Iteration, Axis, Boolean, Quantity, EventHandler;
-typedef char* String;
 
 /* Enumeraciones Para Control de Funciones y Validaciones */
 enum Boolean { false, true };
@@ -16,7 +15,7 @@ enum Button {
     btnTrapezoidal,
 
     btnRestore, btnExit /* Botones Laterales */
-} _hoverButton = NONE;
+} static _hoverButton = NONE;
 
 enum UserMovementControl {
     Keyboard, Mouse
@@ -45,7 +44,7 @@ struct ButtonsStyle {
 }, btnRestoreStyle[2] = {
     { 12, 5, 15 } , { 10, 6, 0 }
 }, btnExitStyle[2] = {
-    { 4, 0, 15 } , { 41, 15, 47 }
+    { 4, 9, 15 } , { 9, 4, 15 }
 };
 
 /* Variables Globales */
