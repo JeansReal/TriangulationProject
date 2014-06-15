@@ -19,6 +19,9 @@
 /* Macro Para Determinar Columnas de Arreglos Unidimensionales Dinamicos */
 #define ArraySize(Array) (sizeof(Array) / sizeof(Array[0]))
 
+/* Macro Para Pintar, Trazar y Rellenar Arreglos de Graficos en Coordenadas */
+#define Draw(Array)		drawpoly(ArraySize(Array) / 2, Array)
+
 /* Macros Para Funciones De Estilo */
 #define FillStyle(Trama, Color)            setfillstyle(Trama, Color)
 #define LineStyle(Style, Thickness, Color)    setcolor(Color), setlinestyle(Style, 0, Thickness)
