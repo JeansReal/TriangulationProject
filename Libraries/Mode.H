@@ -9,8 +9,8 @@ enum Boolean { false, true };
 
 /* Enumerations to Control User Activities */
 enum Button {
-    btnInputVector,     /* Top Buttons(Comandos) */
-    btnCloseVector,
+    btnInputPoints,     /* Top Buttons(Comandos) */
+    btnClosePolygon,
     btnMonotone,
     btnTrapezoidal,
 
@@ -49,7 +49,7 @@ struct ButtonsStyle {
 /*  */
 
 /* Function that Initiates the Graphical Mode */
-void InitGraph(void)
+void InitGraphicMode(void)
 {
     Graph driver = VGA, mode = VGAHI, error;
 
