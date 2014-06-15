@@ -15,15 +15,15 @@ enum Button {
     btnTrapezoidal,
 
     btnRestore, btnExit /* Botones Laterales */
-} static _hoverButton = NONE;
+} _hoverButton = NONE;
 
 enum UserMovementControl {
     Keyboard, Mouse
 } _activeMovementControl = NONE;
 
 /* Enumeracion Para el Macro Linea>> Que Representa Funcion LineStyle(Style, Trama, Thickness) */
-enum Line_Styles { Continua, Punteada, Centrada, Guiones };
-enum Line_Thickness { Fina = NORM_WIDTH, Gruesa = THICK_WIDTH };
+enum LineStyles { Continua, Punteada, Centrada, Guiones };
+enum LineThickness { Fina = NORM_WIDTH, Gruesa = THICK_WIDTH };
 
 /* Enumeracion Para el Macro Relleno>> Que Representa Funcion setfillstyle(Trama, Color)*/
 enum Fill_Styles {
@@ -48,6 +48,7 @@ struct ButtonsStyle {
 };
 
 /* Variables Globales */
+/*  */
 
 void InitGraph(void)
 {

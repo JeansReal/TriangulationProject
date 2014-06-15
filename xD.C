@@ -1,8 +1,8 @@
 ***REMOVED***
 ***REMOVED***
-/*              Jeans Real                  */
-/*              Kristel Aburto              */
 ***REMOVED***
+***REMOVED***
+/*        Profesor>> Grevin Silva           */
 ***REMOVED***
 
 /* No Incluir Librerias Mas de 1 Vez */
@@ -15,11 +15,11 @@
 #include <StdLib.h>     /* Comandos del sistema>> system() , abort() , exit() */
 #include <Mouse.h>      /* Funcion para Mostrar Mouse y sus Eventos */
 
-/* Libreria Personalizada */
-#include "Apple/Macro.h"      /* Macros */
+/* Helpers */
+#include "Apple/Macro.h"      /* Macros y Constantes */
 #include "Apple/Modo.h"       /* Modo Grafico */
-#include "Apple/UserMov.h"    /* Funciones Movimiento */
-#include "Apple/Screens.h"    /* Funciones de User Interface(UI) */
+#include "Apple/UserMov.h"    /* User Control Movement */
+#include "Apple/Screens.h"    /* Funciones de UI */
 
 /* Funciones Prototipo */
 /* Funciones Para El Modo Grafico */
@@ -39,8 +39,12 @@ void UserInterface(void);
 /** Cuerpo Principal **/
 void main(void)
 {
+    Axis x = 320, y = 240, xClick = 0, yClick = 0;
     EventHandler Event = NONE;
-    Axis x = 320, y = 240;
+    Boolean clickPress = false;
+
+    struct pointtype Points[50];
+    static Quantity nPoints = 0;
 
     InitGraph();
 
@@ -57,13 +61,26 @@ void main(void)
             Event = ReadKey();
             DrawCursor(x, y);
         } else {                          /* Mouse is Active */
-            Event = (mclick() == CLICK) ? CLICK : NONE ;
+
+            if (mclick() == CLICK)        /* If Click is Pressed */
+            {
+                if (!clickPress)          /* Si no ha presionado click */
+                {
+                    clickPress = true;    /* activate flag and capture click positions */
+                    xClick = mxpos(1);
+                    yClick = mypos(1);
+                }
+            }
+            else if (clickPress)          /* if the click is released */
+            {
+                Event = CLICK;
+                clickPress = false;
+            }
 
             x = mxpos(1);
             y = mypos(1);
         }
 
-        /* Si el Cursor esta Fuera del Area de Trabajo */
         if (IsOutsideWorkArea(x, y))
 		   _hoverButton = HoverButton(x, y);
 
@@ -75,34 +92,112 @@ void main(void)
             case LEFT:  x -= CanMoveLeft(x)  break;
 
             case ENTER: case CLICK:
-                if (_hoverButton == NONE)       /* If No Button Is Selected */
+                if (_hoverButton == NONE)
                 {
-                    /* TODO Save Points */
+                    if (nPoints > 50) exit(1);
+
+                    Points[nPoints].x = mxpos(1);
+                    Points[nPoints].y = mypos(1);
+
+                    setcolor(4);
+                    settextstyle(0, 0, 1);
+                    mocultar();
+
+                    outtextxy(Points[nPoints].x, Points[nPoints].y, "x");
+                    
+                    mver();
+
+                    gotoxy(1,nPoints + 1);
+                    printf("%d %d", Points[nPoints].x, Points[nPoints].y);
+                    nPoints++;
+
                 } else {                        /* If a Button Was Selected */
                     switch (_hoverButton)
                     {
                         case btnInputVector:    ButtonEvents(false, btnInputVector);   break;
-                        case btnCloseVector:    ButtonEvents(false, btnCloseVector);   break;
+                        case btnCloseVector:
+                            ButtonEvents(false, btnCloseVector);
+
+                            {
+                            int i,j;
+                            int tempa;
+                            int tempb;
+                            int temp[40] = {0};
+                            int higher = 0;
+                            int lower = 0;
+                            int higherpos = 0;
+
+                            for(i = 0; i < nPoints; i++)
+                                for(j = nPoints - 1; j > i; j--)
+                                    if(Points[j - 1].x > Points[j].x)
+                                    {
+                                        tempa = Points[j - 1].x;
+                                        tempb = Points[j - 1].y;
+
+                                        Points[j - 1].x = Points[j].x;
+                                        Points[j - 1].y = Points[j].y;
+
+                                        Points[j].x = tempa;
+                                        Points[j].y = tempb;
+                                    }
+
+                            for(i = 0, higher = Points[0].y, lower = Points[0].y ; i < nPoints; ++i)
+                            {
+                                if(higher < Points[i].y)
+                                {
+                                    higher = Points[i].y;
+                                    higherpos = i;
+                                }
+
+                                if (lower > Points[i].y)
+                                    lower = Points[i].y;
+                            }
+
+                            temp[0] = Points[higherpos].x;
+                            temp[1] = Points[higherpos].y;
+                            
+                            for (i = 2, j = 0; j < nPoints; i+=2, j++)
+                            {
+                                if (j == higherpos)
+                                    j++;
+
+                                temp[i] = Points[j].x;
+                                temp[i + 1] = Points[j].y;
+                            }
+
+                            temp[i] = Points[higherpos].x;
+                            temp[i + 1] = Points[higherpos].y;
+                            
+
+                            for (i = 0, j = 0; temp[i] != 0 ; i+=2, j++)
+                            {                            
+                                gotoxy(8,1 + j);
+                                printf("%d %d", temp[i], temp[i+1]);
+                            }
+
+                            drawpoly(nPoints + 1, temp);
+                
+                    }
+                    break;
+
                         case btnMonotone:       ButtonEvents(false, btnMonotone);      break;
                         case btnTrapezoidal:    ButtonEvents(false, btnTrapezoidal);   break;
-                        case btnRestore:        ButtonEvents(false, btnRestore);       break;
+                        case btnRestore:        WorkSpace(); ButtonEvents(false, btnRestore);       break;
                         case btnExit:           closegraph();       exit(0);
                     }
 
                     /* Realocating Cursor */
                     (_activeMovementControl == Keyboard) ? x = 320 , y = 240 : msituar(1, 320, 240) ;
-
-                    _hoverButton = Event = NONE;
                 }
-            break;
 
-            default:
-                if (_activeMovementControl == Keyboard) /* Redraws Cursor For more UX! */
-                    DrawCursor(x, y);
+                _hoverButton = Event = NONE;
             break;
-            
         }
 
+        if (_activeMovementControl == Keyboard) /* Redraws Cursor For more UX! */
+            DrawCursor(x, y);
 
     } while (mclick() != 2);
 }
+
+void ClosePolygon
