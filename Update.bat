@@ -16,9 +16,9 @@ TaskList | Find /I "notepad++.exe"
     )
 Echo.
 
-If Exist C:\TC20\INCLUDE\Apple (
+If Exist C:\TC20\INCLUDE\Helper (
     Echo Copiando Librerias
-        Xcopy C:\TC20\INCLUDE\Apple C:\TC20\TriangulationProject\Libraries /S /D
+        Xcopy C:\TC20\INCLUDE\Helper C:\TC20\TriangulationProject\Libraries /S /D
 ) Else (
     Echo Error al leer las Librerias
     Goto Problema

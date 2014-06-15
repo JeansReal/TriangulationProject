@@ -25,11 +25,11 @@ Echo Copiando Drivers
 Echo.
 
 Echo Copiando Librerias
-        If Not Exist C:\TC20\INCLUDE\Apple (
+        If Not Exist C:\TC20\INCLUDE\Helper (
             Echo     Creando Directorio
-                mkdir C:\TC20\INCLUDE\Apple
+                mkdir C:\TC20\INCLUDE\Helper
 
-            If Not Exist C:\TC20\INCLUDE\Apple (
+            If Not Exist C:\TC20\INCLUDE\Helper (
                 Echo         Problema Al Crear el Directorio
                 Goto Problema
             ) Else (
@@ -37,8 +37,8 @@ Echo Copiando Librerias
             )
         )
 
-        If Exist C:\TC20\INCLUDE\Apple (
-            robocopy C:\TC20\TriangulationProject\Libraries C:\TC20\INCLUDE\Apple /E /MT:16 /NJH /NFL /NJS
+        If Exist C:\TC20\INCLUDE\Helper (
+            robocopy C:\TC20\TriangulationProject\Libraries C:\TC20\INCLUDE\Helper /E /MT:16 /NJH /NFL /NJS
         )
 Echo.
 
@@ -46,7 +46,7 @@ Echo Copiando Codigo Principal
     robocopy C:\TC20\TriangulationProject\ C:\TC20\ xD.C /MT:16 /NJH /NFL /NJS
 Echo.
 
-Start "" notepad++ C:\TC20\INCLUDE\Apple C:\TC20\xD.C
+Start "" notepad++ C:\TC20\INCLUDE\Helper C:\TC20\xD.C
 
 If %ErrorLevel% == 1 (
     :Problema
