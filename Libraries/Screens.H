@@ -117,7 +117,7 @@ enum Button HoverButton(Axis x, Axis y)
 
 void WorkSpace(void)
 {
-    FillStyle(Solido, 15) , LineStyle(Continua, Fina, 6) ;
+    FillStyle(Solido, 15) , LineStyle(Continua, Gruesa, 6) ;
 
     moveto(520, 430) , lineto( 50, 430) ;
     lineto( 50,  50) , lineto(590,  50) ;

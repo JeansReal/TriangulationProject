@@ -36,6 +36,8 @@ enum Button HoverButton(Axis x, Axis y);
 void WorkSpace(void);
 void UserInterface(void);
 
+void ClosePolygon(Quantity nPoints, struct pointtype Points[]);
+
 /** Cuerpo Principal **/
 void main(void)
 {
@@ -115,70 +117,11 @@ void main(void)
                     switch (_hoverButton)
                     {
                         case btnInputVector:    ButtonEvents(false, btnInputVector);   break;
+                        
                         case btnCloseVector:
                             ButtonEvents(false, btnCloseVector);
-
-                            {
-                            int i,j;
-                            int tempa;
-                            int tempb;
-                            int temp[40] = {0};
-                            int higher = 0;
-                            int lower = 0;
-                            int higherpos = 0;
-
-                            for(i = 0; i < nPoints; i++)
-                                for(j = nPoints - 1; j > i; j--)
-                                    if(Points[j - 1].x > Points[j].x)
-                                    {
-                                        tempa = Points[j - 1].x;
-                                        tempb = Points[j - 1].y;
-
-                                        Points[j - 1].x = Points[j].x;
-                                        Points[j - 1].y = Points[j].y;
-
-                                        Points[j].x = tempa;
-                                        Points[j].y = tempb;
-                                    }
-
-                            for(i = 0, higher = Points[0].y, lower = Points[0].y ; i < nPoints; ++i)
-                            {
-                                if(higher < Points[i].y)
-                                {
-                                    higher = Points[i].y;
-                                    higherpos = i;
-                                }
-
-                                if (lower > Points[i].y)
-                                    lower = Points[i].y;
-                            }
-
-                            temp[0] = Points[higherpos].x;
-                            temp[1] = Points[higherpos].y;
-                            
-                            for (i = 2, j = 0; j < nPoints; i+=2, j++)
-                            {
-                                if (j == higherpos)
-                                    j++;
-
-                                temp[i] = Points[j].x;
-                                temp[i + 1] = Points[j].y;
-                            }
-
-                            temp[i] = Points[higherpos].x;
-                            temp[i + 1] = Points[higherpos].y;
-                            
-
-                            for (i = 0, j = 0; temp[i] != 0 ; i+=2, j++)
-                            {                            
-                                gotoxy(8,1 + j);
-                                printf("%d %d", temp[i], temp[i+1]);
-                            }
-
-                            drawpoly(nPoints + 1, temp);
-                
-                    }
-                    break;
+                            ClosePolygon(nPoints, Points);
+                        break;
 
                         case btnMonotone:       ButtonEvents(false, btnMonotone);      break;
                         case btnTrapezoidal:    ButtonEvents(false, btnTrapezoidal);   break;
@@ -200,4 +143,92 @@ void main(void)
     } while (mclick() != 2);
 }
 
-void ClosePolygon
+void ClosePolygon(Quantity nPoints, struct pointtype Points[])
+{
+    int i,j;
+    int tempa;
+    int tempb;
+    int temp[40] = {0};
+    int higher = 0;
+    int higherpos = 0;
+
+    /* Ordenar de Ascendentemente los Puntos */
+    for(i = 0; i < nPoints; i++)
+        for(j = nPoints - 1; j > i; j--)
+            if(Points[j - 1].x > Points[j].x)
+            {
+                tempa = Points[j - 1].x;
+                tempb = Points[j - 1].y;
+
+                Points[j - 1].x = Points[j].x;
+                Points[j - 1].y = Points[j].y;
+
+                Points[j].x = tempa;
+                Points[j].y = tempb;
+            }
+
+    /* Obtener el Punto mas Alto en el eje Y */
+    for(i = 0, higher = Points[0].y; i < nPoints; ++i)
+        if(higher < Points[i].y)
+        {
+            higher = Points[i].y;
+            higherpos = i;
+        }
+
+    /* Just printing Number to see Order :D */
+    gotoxy(1,1);
+    for (i = 0; i < nPoints ; i++)
+        printf("%d %d\n", Points[i].x, Points[i].y);
+
+    /* Asignar Punto mas alto como punto de inicio */
+    temp[0] = Points[higherpos].x;
+    temp[1] = Points[higherpos].y;
+
+    /* Asignar los demas puntos tomando como referencia
+       los puntos menores al punto x de inicio */
+    for (i = 2, j = 0; j < nPoints; j++)
+    {
+        if (j == higherpos)
+            j++;
+
+        if (Points[j].x < temp[0])
+        {
+            temp[i] = Points[j].x;
+            temp[i + 1] = Points[j].y;
+            i+=2;
+        }
+    }
+
+    /* Asignar los demas puntos tomando como referencia
+       los puntos mayores al punto x de inicio */
+    for (j = 0; j < nPoints; j++)
+    {
+        if (j == higherpos)
+            j++;
+
+        if (Points[j].x > temp[0])
+        {
+            temp[i] = Points[j].x;
+            temp[i + 1] = Points[j].y;
+            i+=2;
+        }
+    }
+    
+    /* Manually check if last lines intersect */
+    printf("%d", temp[i - 1]);
+    if (temp[i - 1] > 1 )
+    {
+
+    }
+
+    temp[i] = Points[higherpos].x;
+    temp[i + 1] = Points[higherpos].y;
+
+    for (i = 0, j = 0; temp[i] != 0 ; i+=2, j++)
+    {                            
+        gotoxy(9,1 + j);
+        printf("%d %d", temp[i], temp[i + 1]);
+    }
+
+    drawpoly(nPoints + 1, temp);
+}
