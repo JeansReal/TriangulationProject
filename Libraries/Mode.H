@@ -1,31 +1,29 @@
-/* Libreria que Contiene Funciones y Enumeraciones y Estructuras para el Modo Grafico */
+/* Library that contains Functions, Enumerations and Structures for Graphic Mode */
 
-/* Declaracion de Nuevos Tipos de Datos */
+/* Declaration of New Data Types */
 typedef int Graph;
 typedef unsigned short Iteration, Axis, Boolean, Quantity, EventHandler;
 
-/* Enumeraciones Para Control de Funciones y Validaciones */
+/* Enumeration to Control Validations */
 enum Boolean { false, true };
 
-enum Limits { Default, WorkArea } _activeLimit = Default ;
+/* Enumerations to Control User Activities */
 enum Button {
-    btnInputVector,     /* Botones Superiores(Comandos) */
+    btnInputVector,     /* Top Buttons(Comandos) */
     btnCloseVector,
     btnMonotone,
     btnTrapezoidal,
 
-    btnRestore, btnExit /* Botones Laterales */
+    btnRestore, btnExit /* Lateral Buttons */
 } _hoverButton = NONE;
 
 enum UserMovementControl {
     Keyboard, Mouse
 } _activeMovementControl = NONE;
 
-/* Enumeracion Para el Macro Linea>> Que Representa Funcion LineStyle(Style, Trama, Thickness) */
+/* Enumerations for Graphic Styles >> LineStyle(Style, Trama, Thickness), FillStyle(Trama, Color) */
 enum LineStyles { Continua, Punteada, Centrada, Guiones };
 enum LineThickness { Fina = NORM_WIDTH, Gruesa = THICK_WIDTH };
-
-/* Enumeracion Para el Macro Relleno>> Que Representa Funcion setfillstyle(Trama, Color)*/
 enum Fill_Styles {
     Vacio, Solido,
     Ln_Hor,
@@ -36,7 +34,7 @@ enum Fill_Styles {
     Punteado, Punteado_C
 };
 
-/* Estructura que Simula una Clase con Atributos Predeterminados para en Control de Estilo de los Botones */
+/* Structure that Contains Style Attributes for Buttons */
 struct ButtonsStyle {
     Graph bkColor, lineColor, lblColor;
 } btnCommandsStyle[2] = {
@@ -47,16 +45,17 @@ struct ButtonsStyle {
     { 4, 9, 15 } , { 9, 4, 15 }
 };
 
-/* Variables Globales */
+/* Global Variables */
 /*  */
 
+/* Function that Initiates the Graphical Mode */
 void InitGraph(void)
 {
-    Graph driver = VGA, mode = VGAHI, error = 0;
+    Graph driver = VGA, mode = VGAHI, error;
 
     initgraph(&driver, &mode, "");
 
-    /* Validamos Si el Modo Grafico Inicio Sin Problemas */
+    /* If the Graph Mode has problems with Start */
     if ((error = graphresult()) != grOk)
     {
         printf("Error Al Iniciar El Modo Grafico\nError #%d >> %s\n\n", error, grapherrormsg(error));
