@@ -14,6 +14,7 @@
 #include <Graphics.h>   /* Borland Graphic Environment */ 
 #include <StdLib.h>     /* System Commands>> system() , abort() , exit() */
 #include <Mouse.h>      /* Function to Show Mouse and Events>> mver() */
+#include <String.h>     /* For Filling a Block of Memory>> memset() */
 
 /* Helpers */
 #include "Helper/Macro.h"   /* Macros and Constants */
@@ -39,7 +40,7 @@ enum Button HoverButton(Axis x, Axis y);
 enum UserMovementControl UserControl(void);
 EventHandler ReadKey(void);
 /* Functions Containing Triangulation Methods and Custom Helpers for Methods */
-void ClosePolygon(Quantity nPoints, struct pointtype Points[]);
+void ClosePolygon(Quantity nPoints, struct pointtype CloudOfPoints[]);
 
 /** Main Body **/
 void main(void)
@@ -48,8 +49,8 @@ void main(void)
     EventHandler Event = NONE;
     Boolean clickPress = false;
 
-    struct pointtype Points[50];
-    static Quantity nPoints = 0;
+    AxisStruct CloudOfPoints[50];
+    Quantity nPoints = 0;
 
     InitGraphicMode();
 
@@ -104,19 +105,19 @@ void main(void)
                 {
                     if (nPoints > 50) exit(1);
 
-                    Points[nPoints].x = mxpos(1);
-                    Points[nPoints].y = mypos(1);
+                    CloudOfPoints[nPoints].x = mxpos(1);
+                    CloudOfPoints[nPoints].y = mypos(1);
 
                     setcolor(4);
                     settextstyle(0, 0, 1);
                     mocultar();
 
-                    outtextxy(Points[nPoints].x, Points[nPoints].y, "x");
+                    outtextxy(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, "x");
                     
                     mver();
 
-                    /*gotoxy(1,nPoints + 1);
-                    printf("%d %d", Points[nPoints].x, Points[nPoints].y);*/
+                    gotoxy(1,nPoints + 1);
+                    printf("%d %d", CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y);
                     nPoints++;
 
                 } else {                        /* If a Button Was Selected */
@@ -126,7 +127,7 @@ void main(void)
                         
                         case btnClosePolygon:
                             DrawButtonEvent(false, btnClosePolygon);
-                            ClosePolygon(nPoints, Points);
+                            ClosePolygon(nPoints, CloudOfPoints);
                         break;
 
                         case btnMonotone:       DrawButtonEvent(false, btnMonotone);      break;
