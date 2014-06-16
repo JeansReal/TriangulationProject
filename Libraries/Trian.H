@@ -1,142 +1,169 @@
 /* Library Containing Functions for Triangulation Methods */
 
-/* Function that Closes a Polygon Using Only a Cloud of Points */
-void ClosePolygon(Quantity nPoints, struct pointtype Points[])
+/* Function that Warns for a Error on Runtime */
+void OnMemoryError(void)
 {
-    int i,j;
-    int tempa;
-    int tempb;
-    int *temp = (int *) calloc(nPoints * 2, sizeof(temp));
+    closegraph();
+    system("CLS");
+    textcolor(4) , cputs("Error al Asignar Memoria Necesaria Para los Puntos\n\r");
+    system("Pause") , abort() ;
+}
 
-    int higher = Points[0].y;
-    int lower = Points[0].y;
-    int middle = 0;
+/* Function that Allocs the Necessary Amount of Memory to Process the Cloud of Points */
+Graph *ArrayMemoryConstructor(Quantity requestedPoints)
+{
+    Graph *PointsCloudMemory = NULL;
+    Quantity requiredMemory = requestedPoints * sizeof(Graph) ;
 
-    int separation = 0;
+    PointsCloudMemory = (Graph *) malloc(requiredMemory);
 
-    int temp1x[30] = {0};
-    int temp1y[30] = {0};
-    int temp2x[30] = {0};
-    int temp2y[30] = {0};
+    /* Allocate memory Was Successful */
+    if (PointsCloudMemory != NULL)
+        memset(PointsCloudMemory, 0, requiredMemory);
+    else
+        OnMemoryError();
+
+    /* Return A Pointer to the Clean Memory Allocation */
+    return PointsCloudMemory;
+}
+
+/* Function that Destroy Array Memory Allocated for the Cloud of Points */
+void ArrayMemoryDestructor(Graph PointsCloudMemory[])
+{
+    /* If Array Memory was Passed Correctly */
+    if (PointsCloudMemory != NULL)
+        free(PointsCloudMemory) , PointsCloudMemory = NULL ;
+}
+
+/* Function that allocs Necessary Amount of memory to contains Points Coordinates */
+AxisStruct *StructMemoryConstructor(Quantity requestedPoints)
+{
+    AxisStruct *PointsMemory = NULL;
+    Quantity requiredMemory = (requestedPoints * sizeof(AxisStruct));
+
+    PointsMemory = (AxisStruct *) malloc(requiredMemory);
+
+    /* Allocate memory Was Successful */
+    if (PointsMemory != NULL)
+        memset(PointsMemory, 0, requiredMemory);
+    else
+        OnMemoryError();
+
+    /* Return A Pointer to the Clean Memory Allocation */
+    return PointsMemory;
+}
+
+/* Function that Destroy Memory Allocated for Points Coordinates */
+void StructMemoryDestructor(AxisStruct *PointsMemory)
+{
+    /* If Structure was Passed Correctly */
+    if (PointsMemory != NULL)
+        free(PointsMemory) , PointsMemory = NULL ;
+}
+
+/* Function that Closes a Polygon Using Only a Cloud of Points */
+void ClosePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
+{
+    Axis x = 0, y = 0;
+    Iteration i = 0, j = 0, k = 0;
+
+    Axis yHighest = CloudOfPoints[0].y;
+    Axis yLowest  = CloudOfPoints[0].y;
+    Axis yAverageDistance = 0;
+    
+    Graph *polygonPoints = NULL;
+    
+    AxisStruct *PointsOfTheFirstSector  = NULL;
+    AxisStruct *PointsOfTheSecondSector = NULL;
+    
+    Quantity nPointsOfTheFirstSector  = 0;
+    Quantity nPointsOfTheSecondSector = 0;
  
-    /* Obtener el Punto mas Alto y el mas Bajo en el eje Y */
-    for(i = 0; i < nPoints; ++i)
-    {
-        if(higher < Points[i].y)
-            higher = Points[i].y;
-
-        if (lower > Points[i].y)
-            lower = Points[i].y;
-    }
+    /* Get Highest and Lowest value on the Cloud of Points */
+    for (i = 0; i < nPoints; ++i)
+        if (yHighest <= CloudOfPoints[i].y)
+            yHighest = CloudOfPoints[i].y;
+        else if (yLowest >= CloudOfPoints[i].y)
+            yLowest = CloudOfPoints[i].y;
 
     /* Getting Middle Distance Between this two Points */
-    middle = ((higher - lower) / 2);
-    middle += lower;
+    yAverageDistance = (((yHighest - yLowest) / 2) + yLowest);
 
-    setcolor(4);
+    /* Getting Number of Points for Each Sector */
+    for (i = 0; i < nPoints; ++i)
+        (CloudOfPoints[i].y <= yAverageDistance) ? nPointsOfTheFirstSector++ : nPointsOfTheSecondSector++ ;
 
-    line(0, higher, getmaxx(), higher);
-    line(0, lower, getmaxx(), lower);
-    line(0, middle, getmaxx(), middle);
-
-    setcolor(0);
-
-    /* Spliting Cuadrants */
-
-    /* First Cuadrant */
-    for (i = 0, j = 0, separation = 0; i < nPoints; ++i)
-    {
-        if (Points[i].y <= middle)
+    /* Allocking Memory to Process Sectors of the Cloud of Points */
+    PointsOfTheFirstSector  = StructMemoryConstructor(nPointsOfTheFirstSector);
+    PointsOfTheSecondSector = StructMemoryConstructor(nPointsOfTheSecondSector);
+    
+    /* Splitting Cuadrants */
+    for (i = 0, j = 0, k = 0; i < nPoints; ++i)
+        if (CloudOfPoints[i].y <= yAverageDistance) /* Splitting First Quadrant */
         {
-            temp1x[j] = Points[i].x;
-            temp1y[j] = Points[i].y;
+            PointsOfTheFirstSector[j].x = CloudOfPoints[i].x;
+            PointsOfTheFirstSector[j].y = CloudOfPoints[i].y;
             j++;
-            separation++;
+        } else {                                    /* Splitting Second Quadrant */
+            PointsOfTheSecondSector[k].x = CloudOfPoints[i].x;
+            PointsOfTheSecondSector[k].y = CloudOfPoints[i].y;
+            k++;
         }
-    }
 
-    /* Second Cuadrante */
-    for (i = 0, j = 0; i < nPoints; ++i)
-    {
-        if (Points[i].y >= middle)
-        {
-            temp2x[j] = Points[i].x;
-            temp2y[j] = Points[i].y;
-            j++;
-        }
-    }
-
-    /* Ordenar de Ascendentemente los Puntos del Primer Cuadrante */
-    for (i = 0; i < separation; i++)
-        for (j = separation - 1; j > i; j--)
-        {
-            if (temp1x[j - 1] > temp1x[j])
+    /* Sort Ascending Points of the First Sector */
+    for (i = 0; i < nPointsOfTheFirstSector; i++)
+        for (j = nPointsOfTheFirstSector - 1; j > i; j--)
+            if (PointsOfTheFirstSector[j - 1].x > PointsOfTheFirstSector[j].x)
             {
-                tempa = temp1x[j - 1];
-                tempb = temp1y[j - 1];
+                x = PointsOfTheFirstSector[j - 1].x;
+                y = PointsOfTheFirstSector[j - 1].y;
 
-                temp1x[j - 1] = temp1x[j];
-                temp1y[j - 1] = temp1y[j];
+                PointsOfTheFirstSector[j - 1].x = PointsOfTheFirstSector[j].x;
+                PointsOfTheFirstSector[j - 1].y = PointsOfTheFirstSector[j].y;
 
-                temp1x[j] = tempa;
-                temp1y[j] = tempb;
+                PointsOfTheFirstSector[j].x = x;
+                PointsOfTheFirstSector[j].y = y;
             }
-        }
 
-    /* Ordenar de Descendentemente los Puntos del Segundo Cuadrante */
-    for (i = 0; i < nPoints - separation; i++)
-        for (j = nPoints - separation - 1; j > i; j--)
-        {
-            if (temp2x[j - 1] < temp2x[j])
+    /* Sort Descending Points of the Second Sector */
+    for (i = 0; i < nPointsOfTheSecondSector; i++)
+        for (j = nPointsOfTheSecondSector - 1; j > i; j--)
+            if (PointsOfTheSecondSector[j - 1].x < PointsOfTheSecondSector[j].x)
             {
-                tempa = temp2x[j - 1];
-                tempb = temp2y[j - 1];
+                x = PointsOfTheSecondSector[j - 1].x;
+                y = PointsOfTheSecondSector[j - 1].y;
 
-                temp2x[j - 1] = temp2x[j];
-                temp2y[j - 1] = temp2y[j];
+                PointsOfTheSecondSector[j - 1].x = PointsOfTheSecondSector[j].x;
+                PointsOfTheSecondSector[j - 1].y = PointsOfTheSecondSector[j].y;
 
-                temp2x[j] = tempa;
-                temp2y[j] = tempb;
+                PointsOfTheSecondSector[j].x = x;
+                PointsOfTheSecondSector[j].y = y;
             }
-        }
 
+    /* Increase by 1 the Number of Points to store Coordinates of the end of polygon */
+    nPoints += 1;
+    polygonPoints = ArrayMemoryConstructor(nPoints * 2);
 
-    /*gotoxy(1,6);
-    for (i = 0; i < separation; ++i)
-        printf("\n%d %d", temp1x[i], temp1y[i]);
-
-    gotoxy(1,10);
-    for (i = 0; i < nPoints - separation; ++i)
-        printf("\n%d %d", temp2x[i], temp2y[i]);*/
-
-    /* Uniendo los Dos Arreglos */
-    for (i = 0, j = 0; j < separation; i+=2, j++)
+    /* Joining Both Sectors into one Array */
+    for (i = 0, j = 0; j < nPointsOfTheFirstSector; i += 2, j++)
     {
-        temp[i]     = temp1x[j];
-        temp[i + 1] = temp1y[j];
+        polygonPoints[i]     = PointsOfTheFirstSector[j].x;
+        polygonPoints[i + 1] = PointsOfTheFirstSector[j].y;
+    }
+    for (j = 0; j < nPointsOfTheSecondSector; i += 2, j++)
+    {
+        polygonPoints[i]     = PointsOfTheSecondSector[j].x;
+        polygonPoints[i + 1] = PointsOfTheSecondSector[j].y;
     }
 
-    for (j = 0; j < nPoints - separation; i+=2, j++)
-    {
-        temp[i]     = temp2x[j];
-        temp[i + 1] = temp2y[j];
-    }
+    /* Closing Polygon */
+    polygonPoints[i]     = PointsOfTheFirstSector[0].x;
+    polygonPoints[i + 1] = PointsOfTheFirstSector[0].y;
 
+    drawpoly(nPoints, polygonPoints);
 
-    /*temp[i]     = temp1x[0];
-    temp[i + 1] = temp1y[0];*/
-
-
-    /*for (i = 0, j = 0; temp[i] != 0 ; i+=2, j++)
-    {                            
-        gotoxy(9,1 + j);
-        printf("%d %d", temp[i], temp[i + 1]);
-    }*/
-
-
-
-    drawpoly(nPoints + 1, temp);
-
-    free(temp);
-    temp = NULL;
+    /* Deallocating Memory */
+    ArrayMemoryDestructor(polygonPoints);
+    StructMemoryDestructor(PointsOfTheFirstSector);
+    StructMemoryDestructor(PointsOfTheSecondSector);
 }

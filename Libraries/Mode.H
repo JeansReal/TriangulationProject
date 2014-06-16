@@ -3,6 +3,7 @@
 /* Declaration of New Data Types */
 typedef int Graph;
 typedef unsigned short Iteration, Axis, Boolean, Quantity, EventHandler;
+typedef struct pointtype AxisStruct;    /* *See Graphics Library for more details */
 
 /* Enumeration to Control Validations */
 enum Boolean { false, true };
