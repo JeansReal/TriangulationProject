@@ -1,7 +1,8 @@
 /* Library that contains Functions, Enumerations and Structures for Graphic Mode */
 
 /* Declaration of New Data Types */
-typedef int Graph;
+typedef int Graph, Color;
+typedef char* String;
 typedef unsigned short Iteration, Axis, Boolean, Quantity, EventHandler;
 typedef struct pointtype AxisStruct;    /* *See Graphics Library for more details */
 

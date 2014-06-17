@@ -33,7 +33,14 @@
 #define CanMoveDown(y)  (y < 479) ? CURSORMOTION : false ;
 
 /* Check if the User its Outside the WorsSpace */
-#define IsOutsideWorkSpace(x, y) (((x < 50) || (x > 590) || (y < 50) || (y > 430)) || ((y > 360) && (x > 520))) ? true : false
+#define IsOutsideWorkSpace(x, y) (((x < 50) || (x > 590) || (y < 50) || (y > 430)) || ((y > 360) && (x > 520)))
 
 /* Check if the cursor|Mouse is inside a button: Check If the Actual Pixel Color is not the Background Color */
-#define IsInsideButton(x, y)     ((getpixel(x - 1, y - 1) != 7) && (getpixel(x - 1, y - 1) != 8)) ? true : false
+#define IsInsideButton(x, y)     ((getpixel(x - 1, y - 1) != 7) && (getpixel(x - 1, y - 1) != 8))
+
+/* Macros for Check if its posible a Monotone Triangulation */
+#define Xor(x, y)                            (!x^!y)
+#define Left(A, B, C)                        (Area2(A, B, C) > 0)
+#define LeftOn(A, B, C)                      (Area2(A, B, C) >= 0)
+#define Collinear(A, B, C)                   (!Area2(A, B, C))
+#define Diagonal(i, j, nPoints, PolyPoints)  (InCone(i, j, nPoints, PolyPoints) && Diagonalie(i, j, nPoints, PolyPoints))

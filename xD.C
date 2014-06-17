@@ -55,10 +55,30 @@ void ArrayMemoryDestructor(Graph PointsCloudMemory[]);
 void StructMemoryDestructor(AxisStruct *PointsMemory);
 /* Function that Create A Polygon using a Cloud of Points */
 AxisStruct *CreatePolygon(Quantity nPoints, AxisStruct CloudOfPoints[]);
-
 /* Function that Triangulate a Polygon using Monotonal Algorithm */
 void MonotoneTriangulation();
+/* Calculates Area Inside a Triangle */
+long Area2(AxisStruct *A, AxisStruct *B, AxisStruct *C);
+Boolean InCone(Iteration i, Iteration j, Quantity nPoints, AxisStruct PolygonPoints[]);
+Boolean IntersectProp(AxisStruct *A, AxisStruct *B, AxisStruct *C, AxisStruct *D);
+Boolean Between(AxisStruct *A, AxisStruct *B, AxisStruct *C);
+Boolean Intersect(AxisStruct *A, AxisStruct *B, AxisStruct *C, AxisStruct *D);
+Boolean Diagonalie(Iteration i, Iteration j, Quantity nPoints, AxisStruct PolygonPoints[]);
+void ClipEar(Iteration i, Quantity nPoints, AxisStruct PolygonPoints[]);
+/* Function that Descomposes an polygon into monotones polygons */
+void MonotoneTriangulation(Quantity nPoints, AxisStruct PolygonPoints[]);
 
+void MsgBox(Axis x, Axis y, const String Message, Color BackgroundColor, Color TextColor)
+{    
+    Axis xLeft  = x - textheight(Message); /* strlen() in Text Mode */
+    Axis xRight = x + ((textheight(Message) * 3) * 640) / 100;
+
+    setcolor(TextColor);
+    FillStyle(Solido, BackgroundColor);
+    bar(xLeft, y - 20, xRight, y + 20);
+
+    outtextxy(x, y, Message);
+}
 
 /** Main Body **/
 void main(void)
@@ -67,12 +87,12 @@ void main(void)
     EventHandler Event = NONE;
     Boolean clickPress = false;
 
-    AxisStruct *CloudOfPoints = StructMemoryConstructor(100);
+    AxisStruct *Points = StructMemoryConstructor(100);
     static Quantity nPoints = 0;
 
     InitGraphicMode();
 
-    _activeMovementControl = Mouse;  /* UserControl(); */
+    _activeMovementControl = UserControl();
     
     DrawMainFrame();
     
@@ -121,39 +141,52 @@ void main(void)
             case ENTER: case CLICK:
                 if (_hoverButton == NONE)
                 {
-                    if (nPoints > 50) exit(1);
 
-                    CloudOfPoints[nPoints].x = mxpos(1);
-                    CloudOfPoints[nPoints].y = mypos(1);
+                    if (nPoints >= 100)
+                    {
+                        /* Add Some Workers */
+                    }
 
-                    setcolor(4);
-                    settextstyle(0, 0, 1);
+                    if (_activeMovementControl == Mouse)
+                    {
+                        Points[nPoints].x = mxpos(1);
+                        Points[nPoints].y = mypos(1);
+                    } else {
+                        Points[nPoints].x = x;
+                        Points[nPoints].y = y;
+                    }
+
                     mocultar();
 
-                    LineStyle(Continua, Fina, 2);
-                    fillellipse(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, 2, 2);
+                    FillStyle(Solido, 11);
+                    LineStyle(Continua, Fina, 12);
+                    fillellipse(Points[nPoints].x, Points[nPoints].y, 3, 3);
 
                     mver();
 
-                    gotoxy(1,nPoints + 1);
-                    printf("%d %d", CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y);
-                    nPoints++;
-
+                    nPoints++; /* Move in the Index */
                 } else {                        /* If a Button Was Selected */
                     switch (_hoverButton)
                     {
-                        case btnInputPoints:    DrawButtonEvent(false, btnInputPoints);   break;
+                        case btnInputPoints:
+                            DrawButtonEvent(false, btnInputPoints);
+                        break;
                         
                         case btnClosePolygon:
                             DrawButtonEvent(false, btnClosePolygon);
-                            CloudOfPoints = CreatePolygon(nPoints, CloudOfPoints);
+                            Points = CreatePolygon(nPoints, Points);
                         break;
 
                         case btnMonotone:
                             DrawButtonEvent(false, btnMonotone);
-                            MonotoneTriangulation(nPoints, CloudOfPoints);
+                            MonotoneTriangulation(nPoints, Points);
                         break;
-                        case btnTrapezoidal:    DrawButtonEvent(false, btnTrapezoidal);   break;
+
+                        case btnTrapezoidal:
+                            DrawButtonEvent(false, btnTrapezoidal);
+                            /* Throws some Exception :( */
+                        break;
+
                         case btnRestore:        DrawWorkSpace(); DrawButtonEvent(false, btnRestore);       break;
                         case btnExit:           closegraph();       exit(0);
                     }
