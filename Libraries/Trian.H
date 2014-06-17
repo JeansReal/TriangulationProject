@@ -169,7 +169,7 @@ AxisStruct *CreatePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
     polygonPoints[i]     = PointsOfTheFirstSector[0].x;
     polygonPoints[i + 1] = PointsOfTheFirstSector[0].y;
 
-    setcolor(6);
+    setcolor(0);
     drawpoly(nPoints, polygonPoints);
 
     /* Deallocating Memory */
@@ -181,211 +181,106 @@ AxisStruct *CreatePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
     return CloudOfPoints;
 }
 
-
-#define X 0
-#define Y 1
-#define DIM 2
-#define PMAX 1000
-
-
-void PointAssign(int [],int []);
-void Triangulate(int,int [][2]);
-void TriRecurse(int,int [][2],int []);
-void ClipEar(int,int,int [][2],int []);
-
-Boolean LeftOn(int [],int [],int []);
-Boolean Between(int [],int [],int []);
-Boolean Collinear(int [],int [],int []);
-Boolean InCone(int,int,int,int [][2]);
-Boolean Diagonal(int,int,int,int [][2]);
-Boolean Diagonalie(int,int,int,int [][2]);
-Boolean Intersect(int [],int [],int [],int []);
-Boolean Left(int [],int [],int []);
-Boolean IntersectProp(int [],int [],int [],int []);
-Boolean Xor(Boolean x, Boolean y);
-
-long Area2(int [],int [],int []);
-
-
-void MonotoneTriangulation(Quantity nPoints, AxisStruct CloudOfPoints[])
+/* Fuction that Calculates an Area Inside a simple triangle */
+long Area2(AxisStruct *A, AxisStruct *B, AxisStruct *C)
 {
-    Iteration i = 0;
-    int P[PMAX][2];
+   long area = 0.00;
 
-    for (i = 0; i < nPoints; ++i)
-    {
-        P[i][X] = CloudOfPoints[i].x;
-        P[i][Y] = CloudOfPoints[i].y;
-    }
-
-    for (i = 0; i < nPoints; ++i)
-    {   
-        gotoxy(9,1 + i);
-        printf("%d %d\n", P[i][X], P[i][Y]);
-    }
-
-    Triangulate(nPoints, P);
+   area  = (long)(B->x - A->x) * (long)(C->y - A->y);
+   area -= (long)(B->y - A->y) * (long)(C->x - A->x);
+   
+   return area;
 }
 
-
-
-long Area2(int a[],int b[],int c[])
+Boolean InCone(Iteration i, Iteration j, Quantity nPoints, AxisStruct PolygonPoints[])
 {
-   long area;
-   area = (long)(b[0]-a[0])*(long)(c[1]-a[1]);
-   area-= (long)(b[1]-a[1])*(long)(c[0]-a[0]);
-   return(area);
+   Iteration i1 = 0, in1 = 0;
+
+   /* Computing Closest Points */
+   i1  = (i + 1) % nPoints;
+   in1 = (i + nPoints - 1) % nPoints;
+
+   if (LeftOn(&PolygonPoints[in1], &PolygonPoints[i], &PolygonPoints[i1]))
+      return (Left(&PolygonPoints[i], &PolygonPoints[j], &PolygonPoints[in1]) && Left(&PolygonPoints[j], &PolygonPoints[i], &PolygonPoints[i1]));
+   else
+      return !(LeftOn(&PolygonPoints[i], &PolygonPoints[j], &PolygonPoints[i1]) && LeftOn(&PolygonPoints[j], &PolygonPoints[i], &PolygonPoints[in1]));
 }
 
-Boolean Left(int a[],int b[],int c[])
+Boolean IntersectProp(AxisStruct *A, AxisStruct *B, AxisStruct *C, AxisStruct *D)
 {
-  return Area2(a,b,c)>0;
+    if (Collinear(A, B, C) || Collinear(A, B, D) || Collinear(C, D, A) || Collinear(C, D, B))
+        return false;
+
+    return (Xor(Left(A, B, C), Left(A, B, D)) && Xor(Left(C, D, A), Left(C, D, B)));
 }
 
-Boolean LeftOn(int a[],int b[],int c[])
+Boolean Between(AxisStruct *A, AxisStruct *B, AxisStruct *C)
 {
-  return(Area2(a,b,c)>=0);
-}
-
-Boolean Collinear (int a[],int b[],int c[])
-{
-  return(Area2(a,b,c)==0);
-}
-
-Boolean IntersectProp(int a[],int b[],int c[],int d[])
-{
-  if(Collinear(a,b,c)||Collinear(a,b,d)||Collinear(c,d,a)||Collinear(c,d,b))
-      return false;
-  return(Xor(Left(a,b,c),Left(a,b,d))&&Xor(Left(c,d,a),Left(c,d,b)));
-}
-
-Boolean Between(int a[],int b[],int c[])
-{
-  if(!Collinear(a,b,c))
+  if (!Collinear(A, B, C))
        return false;
-  if(a[X]!=b[X])
-       return((a[X]<=c[X])&&(c[X]<=b[X]))||((a[X]>=c[X])&&(c[X]>=b[X]));
+  if (A->x != B->x)
+       return ((A->x <= C->x) && (C->x <= B->x)) || ((A->x >= C->x) && (C->x >= B->x));
   else
-       return((a[Y]<=c[Y])&&(c[Y]<=b[Y]))||((a[Y]>=c[Y])&&(c[Y]>=b[Y]));
+       return ((A->y <= C->y) && (C->y <= B->y)) || ((A->y >= C->y) && (C->y >= B->y));
 }
 
-Boolean Intersect(int a[],int b[],int c[],int d[])
+Boolean Intersect(AxisStruct *A, AxisStruct *B, AxisStruct *C, AxisStruct *D)
 {
-   if(IntersectProp(a,b,c,d))
+   if (IntersectProp(A, B, C, D))
        return true;
-   else
-   if(Between(a,b,c)||Between(a,b,d)||Between(c,d,a)||Between(c,d,b))
+   else if (Between(A, B, C) || Between(A, B, D) || Between(C, D, A) || Between(C, D, B))
        return true;
    else
        return false;
 }
 
-Boolean Diagonalie(int i,int j,int n,int P[][2])
+Boolean Diagonalie(Iteration i, Iteration j, Quantity nPoints, AxisStruct PolygonPoints[])
 {
-   int k,k1;
-   for(k=0;k<n;k++)
-       {
-         k1=(k+1)%n;
-         if(!((k==i)||(k1==i)||(k==j)||(k1==j)))
-              if(Intersect(P[i],P[j],P[k],P[k1]))
-                  return false;
-       }
-       return true;
-}
+    Iteration k1 = 0, k2 = 0;
 
-Boolean InCone(int i,int j,int n,int P[][2])
-{
-   int i1,in1;
-   i1=(i+1)%n;
-   in1=(i+n-1)%n;
-
-   if(LeftOn(P[in1],P[i],P[i1]))
-      return(Left(P[i],P[j],P[in1])&& Left(P[j],P[i],P[i1]));
-   else
-      return(!(LeftOn(P[i],P[j],P[i1])&& LeftOn(P[j],P[i],P[in1])));
-}
-
-Boolean Diagonal(int i,int j,int n,int P[][2])
-{
-   return(InCone(i,j,n,P)&& Diagonalie(i,j,n,P));
-}
-
-void Triangulate(int n,int P[][2])
-{
-   int Pt[PMAX][2];
-   int labels[PMAX], i = 0;
-   int j = 0;
-
-    for(i=0;i<n;i++)
+    for (k1 = 0; k1 < nPoints; ++k1)
     {
-        PointAssign(Pt[i],P[i]);
-        labels[i]=i;
-        poly[j]=P[i][0];
-        poly[++j]=P[i][1];
-        j++;
+        k2 = (k1 + 1) % nPoints;
+
+        if (!((k1 == i) || (k2 == i) || (k1 == j) || (k2 == j)))
+            if (Intersect(&PolygonPoints[i], &PolygonPoints[j], &PolygonPoints[k1], &PolygonPoints[k2]))
+                return false;
     }
-
-   poly[j]=P[0][0];
-   poly[j+1]=P[0][1];
-
-   TriRecurse(n,P,labels);
-
+    
+    return true;
 }
 
-void ClipEar(int i,int n,int P[][2],int labels[])
+void ClipEar(Iteration i, Quantity nPoints, AxisStruct PolygonPoints[])
 {
-  int k;
-  for(k=i;k<(n-1);k++)
-   {
-     PointAssign(P[k],P[k+1]);
-     labels[k]=labels[k+1];
-   }
+    Iteration k = 0;
+
+    for(k = i; k < (nPoints - 1); ++k)
+    {
+        PolygonPoints[k].x = PolygonPoints[k + 1].x;
+        PolygonPoints[k].y = PolygonPoints[k + 1].y;
+    }
 }
 
-void TriRecurse(int n,int P[][2],int labels[])
+/* Recursive Function that decomposes a Polygon into multiples monotones Polygons */
+void MonotoneTriangulation(Quantity nPoints, AxisStruct PolygonPoints[])
 {
-  int x,y,x1,y1,i,i1,i2,t1,t2;
+    Iteration i1 = 0, i2 = 0, i3 = 0;
 
-  if(n>3)
-   for(i=0;i<n;i++)
-     {
-       i1=(i+1)%n;
-       i2=(i+2)%n;
-
-        if(Diagonal(i,i2,n,P))
+    if (nPoints > 3)
+        for (i1 = 0; i1 < nPoints; ++i1)
         {
-           x=P[i][0];
-           y=P[i][1];
+            i2 = (i1 + 1) % nPoints;
+            i3 = (i1 + 2) % nPoints;
 
-         x1=P[i2][0];
-         y1=P[i2][1];
+            if (!Diagonal(i1, i3, nPoints, PolygonPoints))
+                continue;
 
-         setcolor(0);
-         line(x,y,x1,y1);
+            setcolor(random(15));
+            line(PolygonPoints[i1].x, PolygonPoints[i1].y, PolygonPoints[i3].x, PolygonPoints[i3].y);
 
-         t1= (P[i][0]+P[i1][0]+P[i2][0])/3;
-         t2= (P[i][1]+P[i1][1]+P[i2][1])/3;
+            ClipEar(i2, nPoints, PolygonPoints);
 
-         setfillstyle(SOLID_FILL, 1);
-
-         /*floodfill(t1, t2, 0);*/
-
-         ClipEar(i1,n,P,labels);
-
-         TriRecurse(n-1,P,labels);
-         break;
-         }
-      }
-}
-
-Boolean Xor(Boolean x,Boolean y)
-{
-  return(!x^!y);
-}
-
-void PointAssign(int a[],int b[])
-{
-   int i;
-   for(i=0;i<DIM;i++)
-   a[i]=b[i];
+            MonotoneTriangulation(nPoints - 1, PolygonPoints);
+            break;
+        }
 }

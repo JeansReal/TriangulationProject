@@ -200,7 +200,7 @@ void TriRecurse(int n,int P[][2],int labels[])
 				 x1=P[i2][0];
 				 y1=P[i2][1];
 
-         setcolor(4);
+         setcolor(0);
 				 line(x,y,x1,y1);
 
 				 t1= (P[i][0]+P[i1][0]+P[i2][0])/3;
