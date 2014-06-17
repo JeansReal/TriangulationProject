@@ -15,13 +15,15 @@
 #include <StdLib.h>     /* System Commands>> system() , abort() , exit() */
 #include <Mouse.h>      /* Function to Show Mouse and Events>> mver() */
 #include <String.h>     /* For Filling a Block of Memory>> memset() */
+#include <Math.h>       /* TODO Comment */
+#include <Dos.h>        /* TODO Comment */
 
 /* Helpers */
 #include "Helper/Macro.h"   /* Macros and Constants */
 #include "Helper/Mode.h"    /* Graphic Mode */
 #include "Helper/UI.h"      /* (GUI) Funtions */
 #include "Helper/UX.h"      /* User Control Movement (UX) */
-#include "Helper/Trian.h"   /* Triangulation Methods */
+#include "Helper/Trian.h"   /* Triangulation Methods and Helpers */
 
 /* Prototype Functions */
 /* Functions For Graphic Mode */
@@ -31,7 +33,7 @@ enum Button DrawButton(Axis x, Axis y, Boolean status, enum Button btnId);
 enum Button DrawButtonEvent(Boolean status, enum Button btnId);
 /* Funtion that Draw the Cursor */
 void DrawCursor(Axis x, Axis y);
-/* Functions that Draws the full GUI */
+/* Functions that Draws the Full GUI */
 void DrawWorkSpace(void);
 void DrawMainFrame(void);
 /* Functions that Animate the Button */
@@ -40,7 +42,23 @@ enum Button HoverButton(Axis x, Axis y);
 enum UserMovementControl UserControl(void);
 EventHandler ReadKey(void);
 /* Functions Containing Triangulation Methods and Custom Helpers for Methods */
+/* Helpers */
+/* Error Message */
+void OnMemoryError(void);
+/* Memory Allocator for Array of Points of a Polygon */
+Graph *ArrayMemoryConstructor(Quantity requestedPoints);
+/* Destroy the Memory Allocated for an Array */
+void ArrayMemoryDestructor(Graph PointsCloudMemory[]);
+/* Memory Allocator for Structure of a Point */
+AxisStruct *StructMemoryConstructor(Quantity requestedPoints);
+/* Destroy Memory Allocated for a Structure of Points */
+void StructMemoryDestructor(AxisStruct *PointsMemory);
+/* Function that Create A Polygon using a Cloud of Points */
 void ClosePolygon(Quantity nPoints, struct pointtype CloudOfPoints[]);
+
+/* Function that Triangulate a Polygon using Monotonal Algorithm */
+void MonotonalTriangulation();
+
 
 /** Main Body **/
 void main(void)
@@ -49,8 +67,8 @@ void main(void)
     EventHandler Event = NONE;
     Boolean clickPress = false;
 
-    AxisStruct CloudOfPoints[50];
-    Quantity nPoints = 0;
+    static AxisStruct CloudOfPoints[50];
+    static Quantity nPoints = 0;
 
     InitGraphicMode();
 
@@ -112,8 +130,9 @@ void main(void)
                     settextstyle(0, 0, 1);
                     mocultar();
 
-                    outtextxy(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, "x");
-                    
+                    LineStyle(Continua, Fina, 2);
+                    circle(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, 2);
+
                     mver();
 
                     gotoxy(1,nPoints + 1);
@@ -130,7 +149,10 @@ void main(void)
                             ClosePolygon(nPoints, CloudOfPoints);
                         break;
 
-                        case btnMonotone:       DrawButtonEvent(false, btnMonotone);      break;
+                        case btnMonotone:
+                            DrawButtonEvent(false, btnMonotone);
+                            MonotonalTriangulation(nPoints, CloudOfPoints );
+                        break;
                         case btnTrapezoidal:    DrawButtonEvent(false, btnTrapezoidal);   break;
                         case btnRestore:        DrawWorkSpace(); DrawButtonEvent(false, btnRestore);       break;
                         case btnExit:           closegraph();       exit(0);
