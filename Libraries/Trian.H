@@ -27,14 +27,6 @@ Graph *ArrayMemoryConstructor(Quantity requestedPoints)
     return PointsCloudMemory;
 }
 
-/* Function that Destroy Array Memory Allocated for the Cloud of Points */
-void ArrayMemoryDestructor(Graph PointsCloudMemory[])
-{
-    /* If Array Memory was Passed Correctly */
-    if (PointsCloudMemory != NULL)
-        free(PointsCloudMemory) , PointsCloudMemory = NULL ;
-}
-
 /* Function that allocs Necessary Amount of Memory to contains Points Coordinates */
 AxisStruct *StructMemoryConstructor(Quantity requestedPoints)
 {
@@ -53,6 +45,14 @@ AxisStruct *StructMemoryConstructor(Quantity requestedPoints)
     return PointsMemory;
 }
 
+/* Function that Destroy Array Memory Allocated for the Cloud of Points */
+void ArrayMemoryDestructor(Graph PointsCloudMemory[])
+{
+    /* If Array Memory was Passed Correctly */
+    if (PointsCloudMemory != NULL)
+        free(PointsCloudMemory) , PointsCloudMemory = NULL ;
+}
+
 /* Function that Destroy Memory Allocated for Points Coordinates */
 void StructMemoryDestructor(AxisStruct *PointsMemory)
 {
@@ -61,8 +61,8 @@ void StructMemoryDestructor(AxisStruct *PointsMemory)
         free(PointsMemory) , PointsMemory = NULL ;
 }
 
-/* Function that Closes a Polygon Using Only a Cloud of Points */
-void ClosePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
+/* Function that Closes a Polygon Using Only a Cloud of Points: and Return this but Sorted */
+AxisStruct *CreatePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
 {
     Axis x = 0, y = 0;
     Iteration i = 0, j = 0, k = 0;
@@ -144,22 +144,32 @@ void ClosePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
     nPoints += 1;
     polygonPoints = ArrayMemoryConstructor(nPoints * 2);
 
-    /* Joining Both Sectors into one Array */
-    for (i = 0, j = 0; j < nPointsOfTheFirstSector; i += 2, j++)
+    /* Joining Both Sectors into one Array and Saving Sorted Cloud of Points */
+    for (i = 0, j = 0, k = 0; j < nPointsOfTheFirstSector; i += 2, ++j, ++k)
     {
+        /* Jonining First Sector to Array */
         polygonPoints[i]     = PointsOfTheFirstSector[j].x;
         polygonPoints[i + 1] = PointsOfTheFirstSector[j].y;
+
+        /* Resaving Sorted Cloud of Points */
+        CloudOfPoints[k].x = PointsOfTheFirstSector[j].x;
+        CloudOfPoints[k].y = PointsOfTheFirstSector[j].y;
     }
-    for (j = 0; j < nPointsOfTheSecondSector; i += 2, j++)
+    for (j = 0; j < nPointsOfTheSecondSector; i += 2, ++j, ++k)
     {
         polygonPoints[i]     = PointsOfTheSecondSector[j].x;
         polygonPoints[i + 1] = PointsOfTheSecondSector[j].y;
+
+        /* Resaving Sorted Cloud of Points */
+        CloudOfPoints[k].x = PointsOfTheSecondSector[j].x;
+        CloudOfPoints[k].y = PointsOfTheSecondSector[j].y;
     }
 
-    /* Closing Polygon */
+    /* Closing Last Coordinates of the Polygon */
     polygonPoints[i]     = PointsOfTheFirstSector[0].x;
     polygonPoints[i + 1] = PointsOfTheFirstSector[0].y;
 
+    setcolor(6);
     drawpoly(nPoints, polygonPoints);
 
     /* Deallocating Memory */
@@ -167,8 +177,10 @@ void ClosePolygon(Quantity nPoints, AxisStruct CloudOfPoints[])
     StructMemoryDestructor(PointsOfTheFirstSector);
     StructMemoryDestructor(PointsOfTheSecondSector);
 
-
+    /* Return Sorted Cloud Of Points */
+    return CloudOfPoints;
 }
+
 
 #define X 0
 #define Y 1
@@ -195,7 +207,7 @@ Boolean Xor(Boolean x, Boolean y);
 long Area2(int [],int [],int []);
 
 
-void MonotonalTriangulation(Quantity nPoints, AxisStruct CloudOfPoints[])
+void MonotoneTriangulation(Quantity nPoints, AxisStruct CloudOfPoints[])
 {
     Iteration i = 0;
     int P[PMAX][2];
@@ -206,7 +218,6 @@ void MonotonalTriangulation(Quantity nPoints, AxisStruct CloudOfPoints[])
         P[i][Y] = CloudOfPoints[i].y;
     }
 
-    
     for (i = 0; i < nPoints; ++i)
     {   
         gotoxy(9,1 + i);
@@ -302,8 +313,8 @@ Boolean Diagonal(int i,int j,int n,int P[][2])
 void Triangulate(int n,int P[][2])
 {
    int Pt[PMAX][2];
-   int labels[PMAX],poly[2*PMAX+2],i;
-   int j=0;
+   int labels[PMAX], i = 0;
+   int j = 0;
 
     for(i=0;i<n;i++)
     {
@@ -316,8 +327,6 @@ void Triangulate(int n,int P[][2])
 
    poly[j]=P[0][0];
    poly[j+1]=P[0][1];
-
-   drawpoly(n+1,poly);
 
    TriRecurse(n,P,labels);
 
@@ -359,7 +368,7 @@ void TriRecurse(int n,int P[][2],int labels[])
 
          setfillstyle(SOLID_FILL, 1);
 
-         floodfill(t1, t2, 0);
+         /*floodfill(t1, t2, 0);*/
 
          ClipEar(i1,n,P,labels);
 

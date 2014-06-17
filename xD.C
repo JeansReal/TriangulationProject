@@ -47,17 +47,17 @@ EventHandler ReadKey(void);
 void OnMemoryError(void);
 /* Memory Allocator for Array of Points of a Polygon */
 Graph *ArrayMemoryConstructor(Quantity requestedPoints);
-/* Destroy the Memory Allocated for an Array */
-void ArrayMemoryDestructor(Graph PointsCloudMemory[]);
 /* Memory Allocator for Structure of a Point */
 AxisStruct *StructMemoryConstructor(Quantity requestedPoints);
+/* Destroy the Memory Allocated for an Array */
+void ArrayMemoryDestructor(Graph PointsCloudMemory[]);
 /* Destroy Memory Allocated for a Structure of Points */
 void StructMemoryDestructor(AxisStruct *PointsMemory);
 /* Function that Create A Polygon using a Cloud of Points */
-void ClosePolygon(Quantity nPoints, struct pointtype CloudOfPoints[]);
+AxisStruct *CreatePolygon(Quantity nPoints, AxisStruct CloudOfPoints[]);
 
 /* Function that Triangulate a Polygon using Monotonal Algorithm */
-void MonotonalTriangulation();
+void MonotoneTriangulation();
 
 
 /** Main Body **/
@@ -67,7 +67,7 @@ void main(void)
     EventHandler Event = NONE;
     Boolean clickPress = false;
 
-    static AxisStruct CloudOfPoints[50];
+    AxisStruct *CloudOfPoints = StructMemoryConstructor(100);
     static Quantity nPoints = 0;
 
     InitGraphicMode();
@@ -131,7 +131,7 @@ void main(void)
                     mocultar();
 
                     LineStyle(Continua, Fina, 2);
-                    circle(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, 2);
+                    fillellipse(CloudOfPoints[nPoints].x, CloudOfPoints[nPoints].y, 2, 2);
 
                     mver();
 
@@ -146,12 +146,12 @@ void main(void)
                         
                         case btnClosePolygon:
                             DrawButtonEvent(false, btnClosePolygon);
-                            ClosePolygon(nPoints, CloudOfPoints);
+                            CloudOfPoints = CreatePolygon(nPoints, CloudOfPoints);
                         break;
 
                         case btnMonotone:
                             DrawButtonEvent(false, btnMonotone);
-                            MonotonalTriangulation(nPoints, CloudOfPoints );
+                            MonotoneTriangulation(nPoints, CloudOfPoints);
                         break;
                         case btnTrapezoidal:    DrawButtonEvent(false, btnTrapezoidal);   break;
                         case btnRestore:        DrawWorkSpace(); DrawButtonEvent(false, btnRestore);       break;
