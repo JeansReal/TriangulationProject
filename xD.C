@@ -1,10 +1,3 @@
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-
 /* Include Source Files Only Once in Compilation */
 #pragma once
 
